@@ -50,7 +50,7 @@ contract NounsAuctionHouseFork is
     INounsToken public nouns;
 
     // The address of the WETH contract
-    address public weth;
+    address public paymentToken;
 
     // The minimum amount of time left in an auction after a new bid is created
     uint256 public timeBuffer;
@@ -77,7 +77,7 @@ contract NounsAuctionHouseFork is
     function initialize(
         address _owner,
         INounsToken _nouns,
-        address _weth,
+        address _paymentToken,
         uint256 _timeBuffer,
         uint256 _reservePrice,
         uint8 _minBidIncrementPercentage,
@@ -90,7 +90,7 @@ contract NounsAuctionHouseFork is
         _pause();
 
         nouns = _nouns;
-        weth = _weth;
+        paymentToken = _paymentToken;
         timeBuffer = _timeBuffer;
         reservePrice = _reservePrice;
         minBidIncrementPercentage = _minBidIncrementPercentage;
@@ -122,28 +122,33 @@ contract NounsAuctionHouseFork is
      * @notice Create a bid for a Noun, with a given amount.
      * @dev This contract only accepts payment in ETH.
      */
-    function createBid(uint256 nounId) external payable override nonReentrant {
+    function createBid(
+        uint256 nounId,
+        uint256 bidValue
+    ) external override nonReentrant {
         INounsAuctionHouse.Auction memory _auction = auction;
+
+        _recievePaymentToken(bidValue);
 
         require(_auction.nounId == nounId, "Noun not up for auction");
         require(block.timestamp < _auction.endTime, "Auction expired");
-        require(msg.value >= reservePrice, "Must send at least reservePrice");
+        require(bidValue >= reservePrice, "Must send at least reservePrice");
         require(
-            msg.value >=
+            bidValue >=
                 _auction.amount +
                     ((_auction.amount * minBidIncrementPercentage) / 100),
             "Must send more than last bid by minBidIncrementPercentage amount"
         );
 
-        address payable lastBidder = _auction.bidder;
+        address lastBidder = _auction.bidder;
 
         // Refund the last bidder, if applicable
         if (lastBidder != address(0)) {
-            _safeTransferPaymentWithFallback(lastBidder, _auction.amount);
+            _safeTransferPaymentToken(lastBidder, _auction.amount);
         }
 
-        auction.amount = msg.value;
-        auction.bidder = payable(msg.sender);
+        auction.amount = bidValue;
+        auction.bidder = msg.sender;
 
         // Extend the auction if the bid was received within `timeBuffer` of the auction end time
         bool extended = _auction.endTime - block.timestamp < timeBuffer;
@@ -151,7 +156,7 @@ contract NounsAuctionHouseFork is
             auction.endTime = _auction.endTime = block.timestamp + timeBuffer;
         }
 
-        emit AuctionBid(_auction.nounId, msg.sender, msg.value, extended);
+        emit AuctionBid(_auction.nounId, msg.sender, bidValue, extended);
 
         if (extended) {
             emit AuctionExtended(_auction.nounId, _auction.endTime);
@@ -266,7 +271,7 @@ contract NounsAuctionHouseFork is
         }
 
         if (_auction.amount > 0) {
-            _safeTransferPaymentWithFallback(owner(), _auction.amount);
+            _safeTransferPaymentToken(owner(), _auction.amount);
         }
 
         emit AuctionSettled(_auction.nounId, _auction.bidder, _auction.amount);
@@ -275,11 +280,21 @@ contract NounsAuctionHouseFork is
     /**
      * @notice Transfer ETH. If the ETH transfer fails, wrap the ETH and try send it as WETH.
      */
-    function _safeTransferPaymentWithFallback(
-        address to,
-        uint256 amount
-    ) internal {
-        IERC20(weth).transferFrom(msg.sender, to, amount);
+    function _safeTransferPaymentToken(address to, uint256 amount) internal {
+        // TODO: check the payment was done correctly
+        IERC20(paymentToken).transferFrom(msg.sender, to, amount);
+    }
+
+    function _recievePaymentToken(uint256 amount) internal {
+        bool success = IERC20(paymentToken).transferFrom(
+            msg.sender,
+            address(this),
+            amount
+        );
+        require(
+            success,
+            "NounsAuctionHouseFork: payment token transfer failed"
+        );
     }
 
     /**
