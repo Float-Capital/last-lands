@@ -16,3 +16,5 @@ The Last Lands is our brain child game leveraging the funding mechanism of [Noun
 **The Last Lands** is a social impact public goods funding game. The basic concept of the game is that a land (country) goes on auction once a day for 206 days, until there are no more countries left. Once all the countries are sold, there is a daily battle between the countries until there is one country left standing which is marked as the winner. 
 
 50% of the proceeds of each auction goes towards funding the environment. The other 50% goes into a pool which is claimable by the winning land at the end of the game. 
+
+<img src="/img/battle.jpg" style={{width:"40%", marginLeft: "auto"}} />

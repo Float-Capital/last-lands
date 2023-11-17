@@ -13,7 +13,7 @@ const config = {
   favicon: "img/favicon.ico",
 
   // Set the production url of your site here
-  url: "https://your-docusaurus-site.example.com",
+  url: "https://thelastlands.io",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: "/",
@@ -67,7 +67,7 @@ const config = {
         title: "The Last Lands",
         logo: {
           alt: "The Last Lands",
-          src: "img/lastlands.jpg",
+          src: "img/lastlands-logo.png",
         },
         items: [
           {
@@ -85,7 +85,7 @@ const config = {
         ],
       },
       footer: {
-        style: "dark",
+        style: "light",
         links: [
           // {
           //   title: "Docs",
@@ -97,7 +97,7 @@ const config = {
           //   ],
           // },
         ],
-        copyright: `Made with 💛 by <a href="https://github.com/jasoons">@jasoons</a> & <a href="https://github.com/denhampreen">@denhampreen</a> at EthIstanbul 2023`,
+        copyright: `Made with 🖤 by <a href="https://github.com/jasoons">@jasoons</a> & <a href="https://github.com/denhampreen">@denhampreen</a> at EthIstanbul 2023`,
       },
       prism: {
         theme: prismThemes.github,
