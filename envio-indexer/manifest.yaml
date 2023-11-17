@@ -1,0 +1,61 @@
+dataSources:
+  - kind: ethereum
+    mapping:
+      abis:
+        - file:
+            /: /ipfs/QmXpYw1z1nWCtcqJ74K72b7KbfdZ4HLDq7iqx9vo7bkkJr
+          name: NounsAuctionContract
+      apiVersion: 0.0.7
+      entities:
+        - CreatedBid
+        - SettledAndCreatedAuction
+        - WithdrawMoney
+      eventHandlers:
+        - event: 'CreatedBid(address,uint256,uint256)'
+          handler: handleCreatedBid
+        - event: 'SettledAndCreatedAuction(address,uint256,uint256)'
+          handler: handleSettledAndCreatedAuction
+        - event: 'WithdrawMoney(address,uint256)'
+          handler: handleWithdrawMoney
+      file:
+        /: /ipfs/QmWDWrFYaio5kTtd2o4AtB1Xe6mhkB1ELpfUM4QuzZaMLx
+      kind: ethereum/events
+      language: wasm/assemblyscript
+    name: NounsAuctionContract
+    network: goerli
+    source:
+      abi: NounsAuctionContract
+      address: '0x7FeAaF56Bc68e3364a3cC5D34C943B81b848e86b'
+      startBlock: 9068072
+  - kind: ethereum/contract
+    mapping:
+      abis:
+        - file:
+            /: /ipfs/QmW7e5LzTEocEfLQaLKfdtnejbU925HWaRdoyp4swfJVZb
+          name: ERC721
+      apiVersion: 0.0.7
+      entities:
+        - Token
+        - Transfer
+        - Account
+      eventHandlers:
+        - event: >-
+            CapacityIncreased(indexed address,indexed
+            uint256,uint256,address,uint256)
+          handler: handleTransfer
+        - event: 'Transfer(indexed address,indexed address,indexed uint256)'
+          handler: handleTransfer
+      file:
+        /: /ipfs/Qmf2oAkne6CA5ftYJpL24tSqCjdY9gvgfDkejyKRnTnAzR
+      kind: ethereum/events
+      language: wasm/assemblyscript
+    name: ERC721
+    network: goerli
+    source:
+      abi: ERC721
+      address: '0x7851148A467E2E0B942e71E77182258ade0ecA5F'
+      startBlock: 9068061
+schema:
+  file:
+    /: /ipfs/QmbjdbMDFv2ZXzSsRRpLHuDCXbHuFNH972YVgMR7GU6qTE
+specVersion: 0.0.5

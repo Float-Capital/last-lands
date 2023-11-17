@@ -1,0 +1,132 @@
+name: NounsAuctionHouse
+description: Randomly generated avatar NFTs auctioned daily.
+networks:
+- id: 1
+  start_block: 0
+  contracts:
+  - name: NounsAuctionHouse
+    address:
+    - 0x830BD73E4184ceF73443C15111a1DF14e495C706
+    abi_file_path: abis/NounsAuctionHouse.json
+    handler: src/EventHandlers.ts
+    events:
+    - event: AuctionCreated
+      requiredEntities: 
+      - name: EventsSummary
+    - event: AuctionBid
+      requiredEntities: 
+      - name: EventsSummary
+    - event: AuctionExtended
+      requiredEntities: 
+      - name: EventsSummary
+    - event: AuctionSettled
+      requiredEntities: 
+      - name: EventsSummary
+  - name: NounsDAO
+    address:
+    - 0x6f3E6272A167e8AcCb32072d08E0957F9c79223d
+    abi_file_path: abis/NounsDAO.json
+    handler: src/EventHandlers.ts
+    events:
+    - event: ProposalCreatedWithRequirements
+      requiredEntities: 
+      - name: EventsSummary
+    - event: ProposalCreatedOnTimelockV1
+      requiredEntities: 
+      - name: EventsSummary
+    - event: ProposalCanceled
+      requiredEntities: 
+      - name: EventsSummary
+    - event: ProposalVetoed
+      requiredEntities: 
+      - name: EventsSummary
+    - event: ProposalQueued
+      requiredEntities: 
+      - name: EventsSummary
+    - event: ProposalExecuted
+      requiredEntities: 
+      - name: EventsSummary
+    - event: VoteCast
+      requiredEntities: 
+      - name: EventsSummary
+    - event: MinQuorumVotesBPSSet
+      requiredEntities: 
+      - name: EventsSummary
+    - event: MaxQuorumVotesBPSSet
+      requiredEntities: 
+      - name: EventsSummary
+    - event: QuorumCoefficientSet
+      requiredEntities: 
+      - name: EventsSummary
+    - event: ProposalUpdated
+      requiredEntities: 
+      - name: EventsSummary
+    - event: ProposalDescriptionUpdated
+      requiredEntities: 
+      - name: EventsSummary
+    - event: ProposalTransactionsUpdated
+      requiredEntities: 
+      - name: EventsSummary
+    - event: ProposalObjectionPeriodSet
+      requiredEntities: 
+      - name: EventsSummary
+    - event: SignatureCancelled
+      requiredEntities: 
+      - name: EventsSummary
+    - event: EscrowedToFork
+      requiredEntities: 
+      - name: EventsSummary
+    - event: WithdrawFromForkEscrow
+      requiredEntities: 
+      - name: EventsSummary
+    - event: ExecuteFork
+      requiredEntities: 
+      - name: EventsSummary
+    - event: JoinFork
+      requiredEntities: 
+      - name: EventsSummary
+    - event: VoteSnapshotBlockSwitchProposalIdSet
+      requiredEntities: 
+      - name: EventsSummary
+  - name: NounsDAOData
+    address:
+    - 0xf790A5f59678dd733fb3De93493A91f472ca1365
+    abi_file_path: abis/NounsDAOData.json
+    handler: src/EventHandlers.ts
+    events:
+    - event: ProposalCandidateCreated
+      requiredEntities: 
+      - name: EventsSummary
+    - event: ProposalCandidateUpdated
+      requiredEntities: 
+      - name: EventsSummary
+    - event: ProposalCandidateCanceled
+      requiredEntities: 
+      - name: EventsSummary
+    - event: SignatureAdded
+      requiredEntities: 
+      - name: EventsSummary
+    - event: FeedbackSent
+      requiredEntities: 
+      - name: EventsSummary
+    - event: CandidateFeedbackSent
+      requiredEntities: 
+      - name: EventsSummary
+  - name: NounsToken
+    address:
+    - 0x9C8fF314C9Bc7F6e59A9d9225Fb22946427eDC03
+    abi_file_path: abis/NounsToken.json
+    handler: src/EventHandlers.ts
+    events:
+    - event: NounCreated
+      requiredEntities: 
+      - name: EventsSummary
+    - event: DelegateChanged
+      requiredEntities: 
+      - name: EventsSummary
+    - event: DelegateVotesChanged
+      requiredEntities: 
+      - name: EventsSummary
+    - event: Transfer
+      requiredEntities: 
+      - name: EventsSummary
