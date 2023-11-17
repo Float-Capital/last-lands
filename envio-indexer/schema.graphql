@@ -1,54 +1,58 @@
 type EventsSummary @entity {
   id: ID!
-  delegationEvent: [DelegationEvent!]! @derivedFrom(field:"eventsSummary")
+  delegationEvent: [DelegationEvent!]! @derivedFrom(field: "eventsSummary")
   delegationEventCount: BigInt!
-  transferEvent: [TransferEvent!]! @derivedFrom(field:"eventsSummary")
+  transferEvent: [TransferEvent!]! @derivedFrom(field: "eventsSummary")
   transferEventCount: BigInt!
-  seed: [Seed!]! @derivedFrom(field:"eventsSummary")
+  seed: [Seed!]! @derivedFrom(field: "eventsSummary")
   seedCount: BigInt!
-  noun: [Noun!]! @derivedFrom(field:"eventsSummary")
+  noun: [Noun!]! @derivedFrom(field: "eventsSummary")
   nounCount: BigInt!
-  bid: [Bid!]! @derivedFrom(field:"eventsSummary")
+  bid: [Bid!]! @derivedFrom(field: "eventsSummary")
   bidCount: BigInt!
-  auction: [Auction!]! @derivedFrom(field:"eventsSummary")
+  auction: [Auction!]! @derivedFrom(field: "eventsSummary")
   auctionCount: BigInt!
-  account: [Account!]! @derivedFrom(field:"eventsSummary")
+  account: [Account!]! @derivedFrom(field: "eventsSummary")
   accountCount: BigInt!
-  delegate: [Delegate!]! @derivedFrom(field:"eventsSummary")
+  delegate: [Delegate!]! @derivedFrom(field: "eventsSummary")
   delegateCount: BigInt!
-  proposal: [Proposal!]! @derivedFrom(field:"eventsSummary")
+  proposal: [Proposal!]! @derivedFrom(field: "eventsSummary")
   proposalCount: BigInt!
-  vote: [Vote!]! @derivedFrom(field:"eventsSummary")
+  vote: [Vote!]! @derivedFrom(field: "eventsSummary")
   voteCount: BigInt!
-  governance: [Governance!]! @derivedFrom(field:"eventsSummary")
+  governance: [Governance!]! @derivedFrom(field: "eventsSummary")
   governanceCount: BigInt!
-  dynamicQuorumParams: [DynamicQuorumParams!]! @derivedFrom(field:"eventsSummary")
+  dynamicQuorumParams: [DynamicQuorumParams!]!
+    @derivedFrom(field: "eventsSummary")
   dynamicQuorumParamsCount: BigInt!
-  proposalVersion: [ProposalVersion!]! @derivedFrom(field:"eventsSummary")
+  proposalVersion: [ProposalVersion!]! @derivedFrom(field: "eventsSummary")
   proposalVersionCount: BigInt!
-  proposalCandidate: [ProposalCandidate!]! @derivedFrom(field:"eventsSummary")
+  proposalCandidate: [ProposalCandidate!]! @derivedFrom(field: "eventsSummary")
   proposalCandidateCount: BigInt!
-  proposalCandidateVersion: [ProposalCandidateVersion!]! @derivedFrom(field:"eventsSummary")
+  proposalCandidateVersion: [ProposalCandidateVersion!]!
+    @derivedFrom(field: "eventsSummary")
   proposalCandidateVersionCount: BigInt!
-  proposalCandidateContent: [ProposalCandidateContent!]! @derivedFrom(field:"eventsSummary")
+  proposalCandidateContent: [ProposalCandidateContent!]!
+    @derivedFrom(field: "eventsSummary")
   proposalCandidateContentCount: BigInt!
-  proposalCandidateSignature: [ProposalCandidateSignature!]! @derivedFrom(field:"eventsSummary")
+  proposalCandidateSignature: [ProposalCandidateSignature!]!
+    @derivedFrom(field: "eventsSummary")
   proposalCandidateSignatureCount: BigInt!
-  proposalFeedback: [ProposalFeedback!]! @derivedFrom(field:"eventsSummary")
+  proposalFeedback: [ProposalFeedback!]! @derivedFrom(field: "eventsSummary")
   proposalFeedbackCount: BigInt!
-  candidateFeedback: [CandidateFeedback!]! @derivedFrom(field:"eventsSummary")
+  candidateFeedback: [CandidateFeedback!]! @derivedFrom(field: "eventsSummary")
   candidateFeedbackCount: BigInt!
-  fork: [Fork!]! @derivedFrom(field:"eventsSummary")
+  fork: [Fork!]! @derivedFrom(field: "eventsSummary")
   forkCount: BigInt!
-  forkJoin: [ForkJoin!]! @derivedFrom(field:"eventsSummary")
+  forkJoin: [ForkJoin!]! @derivedFrom(field: "eventsSummary")
   forkJoinCount: BigInt!
-  escrowDeposit: [EscrowDeposit!]! @derivedFrom(field:"eventsSummary")
+  escrowDeposit: [EscrowDeposit!]! @derivedFrom(field: "eventsSummary")
   escrowDepositCount: BigInt!
-  escrowWithdrawal: [EscrowWithdrawal!]! @derivedFrom(field:"eventsSummary")
+  escrowWithdrawal: [EscrowWithdrawal!]! @derivedFrom(field: "eventsSummary")
   escrowWithdrawalCount: BigInt!
-  escrowedNoun: [EscrowedNoun!]! @derivedFrom(field:"eventsSummary")
+  escrowedNoun: [EscrowedNoun!]! @derivedFrom(field: "eventsSummary")
   escrowedNounCount: BigInt!
-  forkJoinedNoun: [ForkJoinedNoun!]! @derivedFrom(field:"eventsSummary")
+  forkJoinedNoun: [ForkJoinedNoun!]! @derivedFrom(field: "eventsSummary")
   forkJoinedNounCount: BigInt!
 }
 
@@ -357,8 +361,8 @@ type Proposal @entity {
   "The timestamp when this proposal was executed"
   executedTimestamp: BigInt
 
-  "The block number at which this proposal was vetoed"
-  vetoedBlock: BigInt
+  # "The block number at which this proposal was vetoed"
+  # vetoedBlock: BigInt
 
   "The timestamp when this proposal was vetoed"
   vetoedTimestamp: BigInt
@@ -598,7 +602,8 @@ type ProposalCandidateContent @entity {
   matchingProposalIds: [BigInt!]
 
   "This proposal's content signatures by signers"
-  contentSignatures: [ProposalCandidateSignature!]! @derivedFrom(field: "content")
+  contentSignatures: [ProposalCandidateSignature!]!
+    @derivedFrom(field: "content")
 
   eventsSummary: String!
 }

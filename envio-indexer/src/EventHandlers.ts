@@ -70,7 +70,7 @@ import {
   NounsTokenContract_DelegateVotesChanged_loader,
   NounsTokenContract_DelegateVotesChanged_handler,
   NounsTokenContract_Transfer_loader,
-  NounsTokenContract_Transfer_handler
+  NounsTokenContract_Transfer_handler,
 } from "../generated/src/Handlers.gen";
 
 import {
@@ -97,7 +97,7 @@ import {
   SeedEntity,
   TransferEventEntity,
   VoteEntity,
-  EventsSummaryEntity
+  EventsSummaryEntity,
 } from "../generated/src/Types.gen";
 
 const GLOBAL_EVENTS_SUMMARY_KEY = "GlobalEventsSummary";
@@ -130,7 +130,6 @@ const INITIAL_EVENTS_SUMMARY: EventsSummaryEntity = {
   escrowedNounCount: BigInt(0),
   forkJoinedNounCount: BigInt(0),
 };
-
 
 NounsAuctionHouseContract_AuctionCreated_loader(({ event, context }) => {
   context.EventsSummary.load(GLOBAL_EVENTS_SUMMARY_KEY);
@@ -189,8 +188,6 @@ NounsAuctionHouseContract_AuctionExtended_handler(({ event, context }) => {
 
   let currentSummaryEntity: EventsSummaryEntity =
     summary ?? INITIAL_EVENTS_SUMMARY;
-
-  
 });
 
 NounsAuctionHouseContract_AuctionSettled_loader(({ event, context }) => {
@@ -202,110 +199,111 @@ NounsAuctionHouseContract_AuctionSettled_handler(({ event, context }) => {
 
   let currentSummaryEntity: EventsSummaryEntity =
     summary ?? INITIAL_EVENTS_SUMMARY;
-
-  
 });
 
-NounsDAOContract_ProposalCreatedWithRequirements_loader(({ event, context }) => {
-  context.EventsSummary.load(GLOBAL_EVENTS_SUMMARY_KEY);
-});
+NounsDAOContract_ProposalCreatedWithRequirements_loader(
+  ({ event, context }) => {
+    context.EventsSummary.load(GLOBAL_EVENTS_SUMMARY_KEY);
+  }
+);
 
-NounsDAOContract_ProposalCreatedWithRequirements_handler(({ event, context }) => {
-  let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
+NounsDAOContract_ProposalCreatedWithRequirements_handler(
+  ({ event, context }) => {
+    let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
-  let currentSummaryEntity: EventsSummaryEntity =
-    summary ?? INITIAL_EVENTS_SUMMARY;
+    let currentSummaryEntity: EventsSummaryEntity =
+      summary ?? INITIAL_EVENTS_SUMMARY;
 
-  let nextSummaryEntity = {
-    ...currentSummaryEntity,
-    approvalsCount: currentSummaryEntity.proposalCount + BigInt(1),
-  };
+    let nextSummaryEntity = {
+      ...currentSummaryEntity,
+      approvalsCount: currentSummaryEntity.proposalCount + BigInt(1),
+    };
 
-  let proposalEntity: ProposalEntity = {
-    id: event.transactionHash + event.logIndex.toString(),
-    proposer: event.params.proposer.toString(),
-    targets: event.params.targets,
-    values: event.params.values,
-    signers: " ",
-    signatures: event.params.signatures,
-    calldatas: event.params.calldatas,
-    createdTimestamp: BigInt(event.blockTimestamp.valueOf()),
-    createdBlock: BigInt(event.blockNumber.valueOf()),
-    lastUpdatedTimestamp: BigInt(event.blockTimestamp.valueOf()),
-    lastUpdatedBlock: BigInt(event.blockNumber.valueOf()),
-    createdTransactionHash: event.transactionHash,
-    startBlock: event.params.startBlock.valueOf(),
-    endBlock: event.params.endBlock.valueOf(),
-    proposalThreshold: event.params.proposalThreshold.valueOf(),
-    quorumVotes: event.params.quorumVotes.valueOf(),
-    forVotes: BigInt(0),
-    againstVotes: BigInt(0),
-    abstainVotes: BigInt(0),
-    title: event.params.description.slice(0, 32),
-    description: event.params.description,
-    status: BigInt(0),
-    executionETA: BigInt(0),
-    totalSupply: BigInt(0),
-    adjustedTotalSupply: BigInt(0),
-    minQuorumVotesBPS: 0,
-    maxQuorumVotesBPS: 0,
-    quorumCoefficient: BigInt(0),
-    objectionPeriodEndBlock: BigInt(0),
-    updatePeriodEndBlock: BigInt(0),
-    voteSnapshotBlock: BigInt(0),
-    onTimelockV1: false,
-    queuedBlock: BigInt(0),
-    queuedTimestamp: BigInt(0),
-    canceledBlock: BigInt(0),
-    canceledTimestamp: BigInt(0),
-    executedBlock: BigInt(0),
-    vetoedBlock: BigInt(0),
-    vetoedTimestamp: BigInt(0),
-    executedTimestamp: BigInt(0),
-    eventsSummary: GLOBAL_EVENTS_SUMMARY_KEY,
-  };
+    let proposalEntity: ProposalEntity = {
+      id: event.transactionHash + event.logIndex.toString(),
+      proposer: event.params.proposer.toString(),
+      targets: event.params.targets,
+      values: event.params.values,
+      signers: " ",
+      signatures: event.params.signatures,
+      calldatas: event.params.calldatas,
+      createdTimestamp: BigInt(event.blockTimestamp.valueOf()),
+      createdBlock: BigInt(event.blockNumber.valueOf()),
+      lastUpdatedTimestamp: BigInt(event.blockTimestamp.valueOf()),
+      lastUpdatedBlock: BigInt(event.blockNumber.valueOf()),
+      createdTransactionHash: event.transactionHash,
+      startBlock: event.params.startBlock.valueOf(),
+      endBlock: event.params.endBlock.valueOf(),
+      proposalThreshold: event.params.proposalThreshold.valueOf(),
+      quorumVotes: event.params.quorumVotes.valueOf(),
+      forVotes: BigInt(0),
+      againstVotes: BigInt(0),
+      abstainVotes: BigInt(0),
+      title: event.params.description.slice(0, 32),
+      description: event.params.description,
+      status: BigInt(0),
+      executionETA: BigInt(0),
+      totalSupply: BigInt(0),
+      adjustedTotalSupply: BigInt(0),
+      minQuorumVotesBPS: 0,
+      maxQuorumVotesBPS: 0,
+      quorumCoefficient: BigInt(0),
+      objectionPeriodEndBlock: BigInt(0),
+      updatePeriodEndBlock: BigInt(0),
+      voteSnapshotBlock: BigInt(0),
+      onTimelockV1: false,
+      queuedBlock: BigInt(0),
+      queuedTimestamp: BigInt(0),
+      canceledBlock: BigInt(0),
+      canceledTimestamp: BigInt(0),
+      executedBlock: BigInt(0),
+      // vetoedBlock: BigInt(0),
+      vetoedTimestamp: BigInt(0),
+      executedTimestamp: BigInt(0),
+      eventsSummary: GLOBAL_EVENTS_SUMMARY_KEY,
+    };
 
-  context.EventsSummary.set(nextSummaryEntity);
-  context.Proposal.set(proposalEntity);
-});
+    context.EventsSummary.set(nextSummaryEntity);
+    context.Proposal.set(proposalEntity);
+  }
+);
 
-NounsDAOContract_ProposalCreatedOnTimelockV1_loader(({ event, context }) => {
-  context.EventsSummary.load(GLOBAL_EVENTS_SUMMARY_KEY);
-});
+// NounsDAOContract_ProposalCreatedOnTimelockV1_loader(({ event, context }) => {
+//   context.EventsSummary.load(GLOBAL_EVENTS_SUMMARY_KEY);
+// });
 
-NounsDAOContract_ProposalCreatedOnTimelockV1_handler(({ event, context }) => {
-  let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
+// NounsDAOContract_ProposalCreatedOnTimelockV1_handler(({ event, context }) => {
+//   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
+//   let currentSummaryEntity: EventsSummaryEntity =
+//     summary ?? INITIAL_EVENTS_SUMMARY;
 
-  let currentSummaryEntity: EventsSummaryEntity =
-    summary ?? INITIAL_EVENTS_SUMMARY;
+//   let nextSummaryEntity = {
+//     ...currentSummaryEntity,
+//     approvalsCount: currentSummaryEntity.proposalCount + BigInt(1),
+//   };
 
-  let nextSummaryEntity = {
-    ...currentSummaryEntity,
-    approvalsCount: currentSummaryEntity.proposalCount + BigInt(1),
-  };
+//   let proposalEntity: ProposalEntity = {
+//     id: event.transactionHash + event.logIndex.toString(),
+//     proposer: event.params.proposer.toString(),
+//     values: event.params.values,
+//     signatures: event.params.signatures,
+//     calldatas: event.params.calldatas,
+//     startBlock: event.params.startBlock.valueOf(),
+//     endBlock: event.params.endBlock.valueOf(),
+//     createdBlock: BigInt(event.blockNumber.valueOf()),
+//     forVotes: BigInt(0),
+//     againstVotes: BigInt(0),
+//     abstainVotes: BigInt(0),
+//     description: event.params.description,
+//     status: BigInt(0),
+//     executionETA: BigInt(0),
+//     onTimelockV1: true,
+//     eventsSummary: GLOBAL_EVENTS_SUMMARY_KEY,
+//   };
 
-  let proposalEntity: ProposalEntity = {
-    id: event.transactionHash + event.logIndex.toString(),
-    proposer: event.params.proposer.toString(),
-    values: event.params.values,
-    signatures: event.params.signatures,
-    calldatas: event.params.calldatas,
-    startBlock: event.params.startBlock.valueOf(),
-    endBlock: event.params.endBlock.valueOf(),
-    createdBlock: BigInt(event.blockNumber.valueOf()),
-    forVotes: BigInt(0),
-    againstVotes: BigInt(0),
-    abstainVotes: BigInt(0),
-    description: event.params.description,
-    status: BigInt(0),
-    executionETA: BigInt(0),
-    onTimelockV1: true,
-    eventsSummary: GLOBAL_EVENTS_SUMMARY_KEY,
-  };
-
-  context.EventsSummary.set(nextSummaryEntity);
-});
+//   context.EventsSummary.set(nextSummaryEntity);
+// });
 
 NounsDAOContract_ProposalCanceled_loader(({ event, context }) => {
   context.EventsSummary.load(GLOBAL_EVENTS_SUMMARY_KEY);
@@ -326,20 +324,19 @@ NounsDAOContract_ProposalCanceled_handler(({ event, context }) => {
   context.Proposal.delete(event.srcAddress.toString());
 });
 
-NounsDAOContract_ProposalVetoed_loader(({ event, context }) => {
-  context.EventsSummary.load(GLOBAL_EVENTS_SUMMARY_KEY);
-});
+// NounsDAOContract_ProposalVetoed_loader(({ event, context }) => {
+//   context.EventsSummary.load(GLOBAL_EVENTS_SUMMARY_KEY);
+// });
 
-NounsDAOContract_ProposalVetoed_handler(({ event, context }) => {
-  let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
-  let proposal = summary!
+// NounsDAOContract_ProposalVetoed_handler(({ event, context }) => {
+//   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
+//   let proposal = summary!;
 
-  let currentSummaryEntity: EventsSummaryEntity =
-    summary ?? INITIAL_EVENTS_SUMMARY;
+//   let currentSummaryEntity: EventsSummaryEntity =
+//     summary ?? INITIAL_EVENTS_SUMMARY;
 
-  proposal!.veteoedBlock = BigInt(event.blockNumber.valueOf());
-  
-});
+//   proposal!.veteoedBlock = BigInt(event.blockNumber.valueOf());
+// });
 
 NounsDAOContract_ProposalQueued_loader(({ event, context }) => {
   context.EventsSummary.load(GLOBAL_EVENTS_SUMMARY_KEY);
@@ -348,7 +345,8 @@ NounsDAOContract_ProposalQueued_loader(({ event, context }) => {
 NounsDAOContract_ProposalQueued_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
-  let currentSummaryEntity: EventsSummaryEntity = summary ?? INITIAL_EVENTS_SUMMARY;
+  let currentSummaryEntity: EventsSummaryEntity =
+    summary ?? INITIAL_EVENTS_SUMMARY;
 
   // let nextSummaryEntity = {
   //   ...currentSummaryEntity,
@@ -365,7 +363,8 @@ NounsDAOContract_ProposalExecuted_loader(({ event, context }) => {
 NounsDAOContract_ProposalExecuted_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
-  let currentSummaryEntity: EventsSummaryEntity = summary ?? INITIAL_EVENTS_SUMMARY;
+  let currentSummaryEntity: EventsSummaryEntity =
+    summary ?? INITIAL_EVENTS_SUMMARY;
 
   // let nextSummaryEntity = {
   //   ...currentSummaryEntity,
@@ -382,14 +381,15 @@ NounsDAOContract_VoteCast_loader(({ event, context }) => {
 NounsDAOContract_VoteCast_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
-  let currentSummaryEntity: EventsSummaryEntity = summary ?? INITIAL_EVENTS_SUMMARY;
+  let currentSummaryEntity: EventsSummaryEntity =
+    summary ?? INITIAL_EVENTS_SUMMARY;
 
   let nextSummaryEntity = {
     ...currentSummaryEntity,
     approvalsCount: currentSummaryEntity.voteCount + BigInt(1),
   };
 
-   context.EventsSummary.set(nextSummaryEntity);
+  context.EventsSummary.set(nextSummaryEntity);
 });
 
 NounsDAOContract_MinQuorumVotesBPSSet_loader(({ event, context }) => {
@@ -399,7 +399,8 @@ NounsDAOContract_MinQuorumVotesBPSSet_loader(({ event, context }) => {
 NounsDAOContract_MinQuorumVotesBPSSet_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
-  let currentSummaryEntity: EventsSummaryEntity = summary ?? INITIAL_EVENTS_SUMMARY;
+  let currentSummaryEntity: EventsSummaryEntity =
+    summary ?? INITIAL_EVENTS_SUMMARY;
 
   // let nextSummaryEntity = {
   //   ...currentSummaryEntity,
@@ -416,7 +417,8 @@ NounsDAOContract_MaxQuorumVotesBPSSet_loader(({ event, context }) => {
 NounsDAOContract_MaxQuorumVotesBPSSet_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
-  let currentSummaryEntity: EventsSummaryEntity = summary ?? INITIAL_EVENTS_SUMMARY;
+  let currentSummaryEntity: EventsSummaryEntity =
+    summary ?? INITIAL_EVENTS_SUMMARY;
 
   // let nextSummaryEntity = {
   //   ...currentSummaryEntity,
@@ -433,7 +435,8 @@ NounsDAOContract_QuorumCoefficientSet_loader(({ event, context }) => {
 NounsDAOContract_QuorumCoefficientSet_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
-  let currentSummaryEntity: EventsSummaryEntity = summary ?? INITIAL_EVENTS_SUMMARY;
+  let currentSummaryEntity: EventsSummaryEntity =
+    summary ?? INITIAL_EVENTS_SUMMARY;
 
   // let nextSummaryEntity = {
   //   ...currentSummaryEntity,
@@ -450,7 +453,8 @@ NounsDAOContract_ProposalUpdated_loader(({ event, context }) => {
 NounsDAOContract_ProposalUpdated_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
-  let currentSummaryEntity: EventsSummaryEntity = summary ?? INITIAL_EVENTS_SUMMARY;
+  let currentSummaryEntity: EventsSummaryEntity =
+    summary ?? INITIAL_EVENTS_SUMMARY;
 
   // let nextSummaryEntity = {
   //   ...currentSummaryEntity,
@@ -460,7 +464,6 @@ NounsDAOContract_ProposalUpdated_handler(({ event, context }) => {
   // context.EventsSummary.set(nextSummaryEntity);
 });
 
-
 NounsDAOContract_ProposalDescriptionUpdated_loader(({ event, context }) => {
   context.EventsSummary.load(GLOBAL_EVENTS_SUMMARY_KEY);
 });
@@ -468,8 +471,8 @@ NounsDAOContract_ProposalDescriptionUpdated_loader(({ event, context }) => {
 NounsDAOContract_ProposalDescriptionUpdated_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
-  let currentSummaryEntity: EventsSummaryEntity = summary ?? INITIAL_EVENTS_SUMMARY;
-  
+  let currentSummaryEntity: EventsSummaryEntity =
+    summary ?? INITIAL_EVENTS_SUMMARY;
 });
 
 NounsDAOContract_ProposalTransactionsUpdated_loader(({ event, context }) => {
@@ -479,8 +482,8 @@ NounsDAOContract_ProposalTransactionsUpdated_loader(({ event, context }) => {
 NounsDAOContract_ProposalTransactionsUpdated_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
-  let currentSummaryEntity: EventsSummaryEntity = summary ?? INITIAL_EVENTS_SUMMARY;
-  
+  let currentSummaryEntity: EventsSummaryEntity =
+    summary ?? INITIAL_EVENTS_SUMMARY;
 });
 
 NounsDAOContract_ProposalObjectionPeriodSet_loader(({ event, context }) => {
@@ -490,8 +493,8 @@ NounsDAOContract_ProposalObjectionPeriodSet_loader(({ event, context }) => {
 NounsDAOContract_ProposalObjectionPeriodSet_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
-  let currentSummaryEntity: EventsSummaryEntity = summary ?? INITIAL_EVENTS_SUMMARY;
-  
+  let currentSummaryEntity: EventsSummaryEntity =
+    summary ?? INITIAL_EVENTS_SUMMARY;
 });
 
 NounsDAOContract_SignatureCancelled_loader(({ event, context }) => {
@@ -501,7 +504,8 @@ NounsDAOContract_SignatureCancelled_loader(({ event, context }) => {
 NounsDAOContract_SignatureCancelled_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
-  let currentSummaryEntity: EventsSummaryEntity = summary ?? INITIAL_EVENTS_SUMMARY;
+  let currentSummaryEntity: EventsSummaryEntity =
+    summary ?? INITIAL_EVENTS_SUMMARY;
 
   let nextSummaryEntity = {
     ...currentSummaryEntity,
@@ -519,8 +523,8 @@ NounsDAOContract_EscrowedToFork_loader(({ event, context }) => {
 NounsDAOContract_EscrowedToFork_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
-  let currentSummaryEntity: EventsSummaryEntity = summary ?? INITIAL_EVENTS_SUMMARY;
-  
+  let currentSummaryEntity: EventsSummaryEntity =
+    summary ?? INITIAL_EVENTS_SUMMARY;
 });
 
 NounsDAOContract_WithdrawFromForkEscrow_loader(({ event, context }) => {
@@ -530,8 +534,8 @@ NounsDAOContract_WithdrawFromForkEscrow_loader(({ event, context }) => {
 NounsDAOContract_WithdrawFromForkEscrow_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
-  let currentSummaryEntity: EventsSummaryEntity = summary ?? INITIAL_EVENTS_SUMMARY;
-  
+  let currentSummaryEntity: EventsSummaryEntity =
+    summary ?? INITIAL_EVENTS_SUMMARY;
 });
 
 NounsDAOContract_ExecuteFork_loader(({ event, context }) => {
@@ -541,8 +545,8 @@ NounsDAOContract_ExecuteFork_loader(({ event, context }) => {
 NounsDAOContract_ExecuteFork_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
-  let currentSummaryEntity: EventsSummaryEntity = summary ?? INITIAL_EVENTS_SUMMARY;
-  
+  let currentSummaryEntity: EventsSummaryEntity =
+    summary ?? INITIAL_EVENTS_SUMMARY;
 });
 
 NounsDAOContract_JoinFork_loader(({ event, context }) => {
@@ -552,21 +556,24 @@ NounsDAOContract_JoinFork_loader(({ event, context }) => {
 NounsDAOContract_JoinFork_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
-  let currentSummaryEntity: EventsSummaryEntity = summary ?? INITIAL_EVENTS_SUMMARY;
-  
-});
-
-NounsDAOContract_VoteSnapshotBlockSwitchProposalIdSet_loader(({ event, context }) => {
-  context.EventsSummary.load(GLOBAL_EVENTS_SUMMARY_KEY);
-});
-
-NounsDAOContract_VoteSnapshotBlockSwitchProposalIdSet_handler(({ event, context }) => {
-  let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
-
   let currentSummaryEntity: EventsSummaryEntity =
     summary ?? INITIAL_EVENTS_SUMMARY;
-  
 });
+
+NounsDAOContract_VoteSnapshotBlockSwitchProposalIdSet_loader(
+  ({ event, context }) => {
+    context.EventsSummary.load(GLOBAL_EVENTS_SUMMARY_KEY);
+  }
+);
+
+NounsDAOContract_VoteSnapshotBlockSwitchProposalIdSet_handler(
+  ({ event, context }) => {
+    let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
+
+    let currentSummaryEntity: EventsSummaryEntity =
+      summary ?? INITIAL_EVENTS_SUMMARY;
+  }
+);
 
 NounsDAODataContract_ProposalCandidateCreated_loader(({ event, context }) => {
   context.EventsSummary.load(GLOBAL_EVENTS_SUMMARY_KEY);
@@ -577,7 +584,6 @@ NounsDAODataContract_ProposalCandidateCreated_handler(({ event, context }) => {
 
   let currentSummaryEntity: EventsSummaryEntity =
     summary ?? INITIAL_EVENTS_SUMMARY;
-  
 });
 
 NounsDAODataContract_ProposalCandidateUpdated_loader(({ event, context }) => {
@@ -589,7 +595,6 @@ NounsDAODataContract_ProposalCandidateUpdated_handler(({ event, context }) => {
 
   let currentSummaryEntity: EventsSummaryEntity =
     summary ?? INITIAL_EVENTS_SUMMARY;
-  
 });
 
 NounsDAODataContract_ProposalCandidateCanceled_loader(({ event, context }) => {
@@ -604,7 +609,8 @@ NounsDAODataContract_ProposalCandidateCanceled_handler(({ event, context }) => {
 
   let nextSummaryEntity = {
     ...currentSummaryEntity,
-    proposalCandidatesCount: currentSummaryEntity.proposalCandidateCount - BigInt(1),
+    proposalCandidatesCount:
+      currentSummaryEntity.proposalCandidateCount - BigInt(1),
   };
 
   context.EventsSummary.set(nextSummaryEntity);
@@ -623,7 +629,8 @@ NounsDAODataContract_SignatureAdded_handler(({ event, context }) => {
 
   let nextSummaryEntity = {
     ...currentSummaryEntity,
-    proposalCandidateSignatureCount: currentSummaryEntity.proposalCandidateSignatureCount + BigInt(1),
+    proposalCandidateSignatureCount:
+      currentSummaryEntity.proposalCandidateSignatureCount + BigInt(1),
   };
 
   let signatureEntity: ProposalCandidateSignatureEntity = {
@@ -643,7 +650,6 @@ NounsDAODataContract_SignatureAdded_handler(({ event, context }) => {
 
   context.EventsSummary.set(nextSummaryEntity);
   context.ProposalCandidateSignature.set(signatureEntity);
-  
 });
 
 NounsDAODataContract_FeedbackSent_loader(({ event, context }) => {
@@ -655,10 +661,11 @@ NounsDAODataContract_FeedbackSent_handler(({ event, context }) => {
 
   let currentSummaryEntity: EventsSummaryEntity =
     summary ?? INITIAL_EVENTS_SUMMARY;
-  
+
   let nextSummaryEntity = {
     ...currentSummaryEntity,
-    proposalFeedbackCount: currentSummaryEntity.proposalFeedbackCount + BigInt(1),
+    proposalFeedbackCount:
+      currentSummaryEntity.proposalFeedbackCount + BigInt(1),
   };
 
   let feedbackEntity: ProposalFeedbackEntity = {
@@ -689,7 +696,8 @@ NounsDAODataContract_CandidateFeedbackSent_handler(({ event, context }) => {
 
   let nextSummaryEntity = {
     ...currentSummaryEntity,
-    candidateFeedbackCount: currentSummaryEntity.candidateFeedbackCount + BigInt(1),
+    candidateFeedbackCount:
+      currentSummaryEntity.candidateFeedbackCount + BigInt(1),
   };
 
   let candidateFeedbackEntity: CandidateFeedbackEntity = {
@@ -701,7 +709,7 @@ NounsDAODataContract_CandidateFeedbackSent_handler(({ event, context }) => {
     supportDetailed: Number(event.params.support.valueOf()),
     votes: BigInt(0),
     reason: event.params.reason,
-    eventsSummary: GLOBAL_EVENTS_SUMMARY_KEY
+    eventsSummary: GLOBAL_EVENTS_SUMMARY_KEY,
   };
 
   context.EventsSummary.set(nextSummaryEntity);
@@ -742,7 +750,7 @@ NounsTokenContract_DelegateChanged_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
   let currentSummaryEntity: EventsSummaryEntity =
-  summary ?? INITIAL_EVENTS_SUMMARY;
+    summary ?? INITIAL_EVENTS_SUMMARY;
 
   // context.EventsSummary.set(nextSummaryEntity);
 });
@@ -755,7 +763,7 @@ NounsTokenContract_DelegateVotesChanged_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
   let currentSummaryEntity: EventsSummaryEntity =
-  summary ?? INITIAL_EVENTS_SUMMARY;
+    summary ?? INITIAL_EVENTS_SUMMARY;
 
   // let nextSummaryEntity = {
   //   ...currentSummaryEntity,
@@ -773,14 +781,14 @@ NounsTokenContract_Transfer_handler(({ event, context }) => {
   let summary = context.EventsSummary.get(GLOBAL_EVENTS_SUMMARY_KEY);
 
   let currentSummaryEntity: EventsSummaryEntity =
-  summary ?? INITIAL_EVENTS_SUMMARY;
+    summary ?? INITIAL_EVENTS_SUMMARY;
 
   let nextSummaryEntity = {
     ...currentSummaryEntity,
     transferEventCount: currentSummaryEntity.transferEventCount + BigInt(1),
   };
 
-  let transferEventEntity: TransferEventEntity = {    
+  let transferEventEntity: TransferEventEntity = {
     id: event.transactionHash + event.logIndex.toString(),
     noun: event.params.tokenId.toString(),
     previousHolder: event.params.from.toString(),
