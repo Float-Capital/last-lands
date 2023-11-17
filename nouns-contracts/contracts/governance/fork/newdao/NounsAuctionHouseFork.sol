@@ -29,14 +29,13 @@
 
 pragma solidity ^0.8.19;
 
-import { PausableUpgradeable } from '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';
-import { ReentrancyGuardUpgradeable } from '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
-import { OwnableUpgradeable } from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
-import { IERC20 } from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import { INounsAuctionHouse } from '../../../interfaces/INounsAuctionHouse.sol';
-import { INounsToken } from '../../../interfaces/INounsToken.sol';
-import { IWETH } from '../../../interfaces/IWETH.sol';
-import { UUPSUpgradeable } from '@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol';
+import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {INounsAuctionHouse} from "../../../interfaces/INounsAuctionHouse.sol";
+import {INounsToken} from "../../../interfaces/INounsToken.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 contract NounsAuctionHouseFork is
     INounsAuctionHouse,
@@ -45,7 +44,7 @@ contract NounsAuctionHouseFork is
     OwnableUpgradeable,
     UUPSUpgradeable
 {
-    string public constant NAME = 'NounsAuctionHouseFork';
+    string public constant NAME = "NounsAuctionHouseFork";
 
     // The Nouns ERC721 token contract
     INounsToken public nouns;
@@ -101,7 +100,12 @@ contract NounsAuctionHouseFork is
     /**
      * @notice Settle the current auction, mint a new Noun, and put it up for auction.
      */
-    function settleCurrentAndCreateNewAuction() external override nonReentrant whenNotPaused {
+    function settleCurrentAndCreateNewAuction()
+        external
+        override
+        nonReentrant
+        whenNotPaused
+    {
         _settleAuction();
         _createAuction();
     }
@@ -121,19 +125,21 @@ contract NounsAuctionHouseFork is
     function createBid(uint256 nounId) external payable override nonReentrant {
         INounsAuctionHouse.Auction memory _auction = auction;
 
-        require(_auction.nounId == nounId, 'Noun not up for auction');
-        require(block.timestamp < _auction.endTime, 'Auction expired');
-        require(msg.value >= reservePrice, 'Must send at least reservePrice');
+        require(_auction.nounId == nounId, "Noun not up for auction");
+        require(block.timestamp < _auction.endTime, "Auction expired");
+        require(msg.value >= reservePrice, "Must send at least reservePrice");
         require(
-            msg.value >= _auction.amount + ((_auction.amount * minBidIncrementPercentage) / 100),
-            'Must send more than last bid by minBidIncrementPercentage amount'
+            msg.value >=
+                _auction.amount +
+                    ((_auction.amount * minBidIncrementPercentage) / 100),
+            "Must send more than last bid by minBidIncrementPercentage amount"
         );
 
         address payable lastBidder = _auction.bidder;
 
         // Refund the last bidder, if applicable
         if (lastBidder != address(0)) {
-            _safeTransferETHWithFallback(lastBidder, _auction.amount);
+            _safeTransferPaymentWithFallback(lastBidder, _auction.amount);
         }
 
         auction.amount = msg.value;
@@ -189,7 +195,9 @@ contract NounsAuctionHouseFork is
      * @notice Set the auction reserve price.
      * @dev Only callable by the owner.
      */
-    function setReservePrice(uint256 _reservePrice) external override onlyOwner {
+    function setReservePrice(
+        uint256 _reservePrice
+    ) external override onlyOwner {
         reservePrice = _reservePrice;
 
         emit AuctionReservePriceUpdated(_reservePrice);
@@ -199,10 +207,14 @@ contract NounsAuctionHouseFork is
      * @notice Set the auction minimum bid increment percentage.
      * @dev Only callable by the owner.
      */
-    function setMinBidIncrementPercentage(uint8 _minBidIncrementPercentage) external override onlyOwner {
+    function setMinBidIncrementPercentage(
+        uint8 _minBidIncrementPercentage
+    ) external override onlyOwner {
         minBidIncrementPercentage = _minBidIncrementPercentage;
 
-        emit AuctionMinBidIncrementPercentageUpdated(_minBidIncrementPercentage);
+        emit AuctionMinBidIncrementPercentageUpdated(
+            _minBidIncrementPercentage
+        );
     }
 
     /**
@@ -239,8 +251,11 @@ contract NounsAuctionHouseFork is
         INounsAuctionHouse.Auction memory _auction = auction;
 
         require(_auction.startTime != 0, "Auction hasn't begun");
-        require(!_auction.settled, 'Auction has already been settled');
-        require(block.timestamp >= _auction.endTime, "Auction hasn't completed");
+        require(!_auction.settled, "Auction has already been settled");
+        require(
+            block.timestamp >= _auction.endTime,
+            "Auction hasn't completed"
+        );
 
         auction.settled = true;
 
@@ -251,7 +266,7 @@ contract NounsAuctionHouseFork is
         }
 
         if (_auction.amount > 0) {
-            _safeTransferETHWithFallback(owner(), _auction.amount);
+            _safeTransferPaymentWithFallback(owner(), _auction.amount);
         }
 
         emit AuctionSettled(_auction.nounId, _auction.bidder, _auction.amount);
@@ -260,19 +275,22 @@ contract NounsAuctionHouseFork is
     /**
      * @notice Transfer ETH. If the ETH transfer fails, wrap the ETH and try send it as WETH.
      */
-    function _safeTransferETHWithFallback(address to, uint256 amount) internal {
-        if (!_safeTransferETH(to, amount)) {
-            IWETH(weth).deposit{ value: amount }();
-            IERC20(weth).transfer(to, amount);
-        }
+    function _safeTransferPaymentWithFallback(
+        address to,
+        uint256 amount
+    ) internal {
+        IERC20(weth).transferFrom(msg.sender, to, amount);
     }
 
     /**
      * @notice Transfer ETH and return the success status.
      * @dev This function only forwards 30,000 gas to the callee.
      */
-    function _safeTransferETH(address to, uint256 value) internal returns (bool) {
-        (bool success, ) = to.call{ value: value, gas: 30_000 }(new bytes(0));
+    function _safeTransferETH(
+        address to,
+        uint256 value
+    ) internal returns (bool) {
+        (bool success, ) = to.call{value: value, gas: 30_000}(new bytes(0));
         return success;
     }
 

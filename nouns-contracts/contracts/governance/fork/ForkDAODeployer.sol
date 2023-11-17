@@ -17,19 +17,24 @@
 
 pragma solidity ^0.8.19;
 
-import { ERC1967Proxy } from '@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol';
-import { IForkDAODeployer, INounsDAOForkEscrow, NounsDAOStorageV3 } from '../NounsDAOInterfaces.sol';
-import { NounsTokenFork } from './newdao/token/NounsTokenFork.sol';
-import { NounsAuctionHouseFork } from './newdao/NounsAuctionHouseFork.sol';
-import { NounsDAOExecutorV2 } from '../NounsDAOExecutorV2.sol';
-import { NounsDAOProxy } from '../NounsDAOProxy.sol';
-import { NounsDAOLogicV3 } from '../NounsDAOLogicV3.sol';
-import { NounsDAOLogicV1Fork } from './newdao/governance/NounsDAOLogicV1Fork.sol';
-import { NounsToken } from '../../NounsToken.sol';
-import { NounsAuctionHouse } from '../../NounsAuctionHouse.sol';
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {IForkDAODeployer, INounsDAOForkEscrow, NounsDAOStorageV3} from "../NounsDAOInterfaces.sol";
+import {NounsTokenFork} from "./newdao/token/NounsTokenFork.sol";
+import {NounsAuctionHouseFork} from "./newdao/NounsAuctionHouseFork.sol";
+import {NounsDAOExecutorV2} from "../NounsDAOExecutorV2.sol";
+import {NounsDAOProxy} from "../NounsDAOProxy.sol";
+import {NounsDAOLogicV3} from "../NounsDAOLogicV3.sol";
+import {NounsDAOLogicV1Fork} from "./newdao/governance/NounsDAOLogicV1Fork.sol";
+import {NounsToken} from "../../NounsToken.sol";
+import {NounsAuctionHouse} from "../../NounsAuctionHouse.sol";
 
 contract ForkDAODeployer is IForkDAODeployer {
-    event DAODeployed(address token, address auction, address governor, address treasury);
+    event DAODeployed(
+        address token,
+        address auction,
+        address governor,
+        address treasury
+    );
 
     /// @notice The token implementation address
     address public immutable tokenImpl;
@@ -89,14 +94,14 @@ contract ForkDAODeployer is IForkDAODeployer {
      * @return treasury The address of the fork DAO treasury
      * @return token The address of the fork DAO token
      */
-    function deployForkDAO(uint256 forkingPeriodEndTimestamp, INounsDAOForkEscrow forkEscrow)
-        external
-        returns (address treasury, address token)
-    {
-        token = address(new ERC1967Proxy(tokenImpl, ''));
-        address auction = address(new ERC1967Proxy(auctionImpl, ''));
-        address governor = address(new ERC1967Proxy(governorImpl, ''));
-        treasury = address(new ERC1967Proxy(treasuryImpl, ''));
+    function deployForkDAO(
+        uint256 forkingPeriodEndTimestamp,
+        INounsDAOForkEscrow forkEscrow
+    ) external returns (address treasury, address token) {
+        token = address(new ERC1967Proxy(tokenImpl, ""));
+        address auction = address(new ERC1967Proxy(auctionImpl, ""));
+        address governor = address(new ERC1967Proxy(governorImpl, ""));
+        treasury = address(new ERC1967Proxy(treasuryImpl, ""));
 
         NounsAuctionHouse originalAuction = getOriginalAuction(forkEscrow);
         NounsDAOExecutorV2 originalTimelock = getOriginalTimelock(forkEscrow);
@@ -114,7 +119,7 @@ contract ForkDAODeployer is IForkDAODeployer {
         NounsAuctionHouseFork(auction).initialize(
             treasury,
             NounsToken(token),
-            originalAuction.weth(),
+            originalAuction.paymentToken(),
             originalAuction.timeBuffer(),
             originalAuction.reservePrice(),
             originalAuction.minBidIncrementPercentage(),
@@ -123,7 +128,10 @@ contract ForkDAODeployer is IForkDAODeployer {
 
         initDAO(governor, treasury, token, originalTimelock);
 
-        NounsDAOExecutorV2(payable(treasury)).initialize(governor, originalTimelock.delay());
+        NounsDAOExecutorV2(payable(treasury)).initialize(
+            governor,
+            originalTimelock.delay()
+        );
 
         emit DAODeployed(token, auction, governor, treasury);
     }
@@ -137,7 +145,9 @@ contract ForkDAODeployer is IForkDAODeployer {
         address token,
         NounsDAOExecutorV2 originalTimelock
     ) internal {
-        NounsDAOLogicV3 originalDAO = NounsDAOLogicV3(payable(originalTimelock.admin()));
+        NounsDAOLogicV3 originalDAO = NounsDAOLogicV3(
+            payable(originalTimelock.admin())
+        );
         NounsDAOLogicV1Fork(governor).initialize(
             treasury,
             token,
@@ -153,7 +163,9 @@ contract ForkDAODeployer is IForkDAODeployer {
     /**
      * @dev Used to prevent the 'Stack too deep' error in the main deploy function.
      */
-    function getOriginalTimelock(INounsDAOForkEscrow forkEscrow) internal view returns (NounsDAOExecutorV2) {
+    function getOriginalTimelock(
+        INounsDAOForkEscrow forkEscrow
+    ) internal view returns (NounsDAOExecutorV2) {
         NounsToken originalToken = NounsToken(address(forkEscrow.nounsToken()));
         return NounsDAOExecutorV2(payable(originalToken.owner()));
     }
@@ -161,12 +173,16 @@ contract ForkDAODeployer is IForkDAODeployer {
     /**
      * @dev Used to prevent the 'Stack too deep' error in the main deploy function.
      */
-    function getOriginalAuction(INounsDAOForkEscrow forkEscrow) internal view returns (NounsAuctionHouse) {
+    function getOriginalAuction(
+        INounsDAOForkEscrow forkEscrow
+    ) internal view returns (NounsAuctionHouse) {
         NounsToken originalToken = NounsToken(address(forkEscrow.nounsToken()));
         return NounsAuctionHouse(originalToken.minter());
     }
 
-    function getStartNounId(NounsAuctionHouse originalAuction) internal view returns (uint256) {
+    function getStartNounId(
+        NounsAuctionHouse originalAuction
+    ) internal view returns (uint256) {
         (uint256 nounId, , , , , ) = originalAuction.auction();
         return nounId;
     }
