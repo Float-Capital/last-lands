@@ -39,6 +39,8 @@ interface INounsAuctionHouse {
         uint256 endTime
     );
 
+    event AuctionPeriodOver();
+
     event AuctionBid(
         uint256 indexed nounId,
         address sender,
