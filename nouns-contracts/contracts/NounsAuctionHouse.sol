@@ -39,6 +39,8 @@ contract NounsAuctionHouse is
     ReentrancyGuardUpgradeable,
     OwnableUpgradeable
 {
+    uint256 constant maxNounId = 206;
+
     // The Nouns ERC721 token contract
     INounsToken public nouns;
 
@@ -220,19 +222,24 @@ contract NounsAuctionHouse is
      */
     function _createAuction() internal {
         try nouns.mint() returns (uint256 nounId) {
-            uint256 startTime = block.timestamp;
-            uint256 endTime = startTime + duration;
+            if (nounId <= maxNounId) {
+                uint256 startTime = block.timestamp;
+                uint256 endTime = startTime + duration;
 
-            auction = Auction({
-                nounId: nounId,
-                amount: 0,
-                startTime: startTime,
-                endTime: endTime,
-                bidder: payable(0),
-                settled: false
-            });
+                auction = Auction({
+                    nounId: nounId,
+                    amount: 0,
+                    startTime: startTime,
+                    endTime: endTime,
+                    bidder: payable(0),
+                    settled: false
+                });
 
-            emit AuctionCreated(nounId, startTime, endTime);
+                emit AuctionCreated(nounId, startTime, endTime);
+            } else {
+                emit AuctionPeriodOver();
+                _pause();
+            }
         } catch Error(string memory) {
             _pause();
         }
