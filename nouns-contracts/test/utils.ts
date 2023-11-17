@@ -9,8 +9,8 @@ import {
   NounsToken__factory as NounsTokenFactory,
   NounsSeeder,
   NounsSeeder__factory as NounsSeederFactory,
-  WETH,
-  WETH__factory as WethFactory,
+  TestERC20,
+  TestERC20__factory as TestERC20_factory,
   NounsDAOLogicV1,
   NounsDAOLogicV1Harness__factory as NounsDaoLogicV1HarnessFactory,
   NounsDAOLogicV2,
@@ -121,10 +121,10 @@ export const deployNounsToken = async (
   );
 };
 
-export const deployWeth = async (deployer?: SignerWithAddress): Promise<WETH> => {
-  const factory = new WethFactory(deployer || (await getSigners()).deployer);
+export const deployErc20 = async (initialSupply: bigint, deployer?: SignerWithAddress): Promise<TestERC20> => {
+  const factory = new TestERC20_factory(deployer || (await getSigners()).deployer);
 
-  return factory.deploy();
+  return factory.deploy(initialSupply);
 };
 
 export const populateDescriptor = async (nounsDescriptor: NounsDescriptor): Promise<void> => {

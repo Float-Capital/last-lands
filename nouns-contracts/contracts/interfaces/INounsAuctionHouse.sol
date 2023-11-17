@@ -28,30 +28,45 @@ interface INounsAuctionHouse {
         // The time that the auction is scheduled to end
         uint256 endTime;
         // The address of the current highest bid
-        address payable bidder;
+        address bidder;
         // Whether or not the auction has been settled
         bool settled;
     }
 
-    event AuctionCreated(uint256 indexed nounId, uint256 startTime, uint256 endTime);
+    event AuctionCreated(
+        uint256 indexed nounId,
+        uint256 startTime,
+        uint256 endTime
+    );
 
-    event AuctionBid(uint256 indexed nounId, address sender, uint256 value, bool extended);
+    event AuctionBid(
+        uint256 indexed nounId,
+        address sender,
+        uint256 value,
+        bool extended
+    );
 
     event AuctionExtended(uint256 indexed nounId, uint256 endTime);
 
-    event AuctionSettled(uint256 indexed nounId, address winner, uint256 amount);
+    event AuctionSettled(
+        uint256 indexed nounId,
+        address winner,
+        uint256 amount
+    );
 
     event AuctionTimeBufferUpdated(uint256 timeBuffer);
 
     event AuctionReservePriceUpdated(uint256 reservePrice);
 
-    event AuctionMinBidIncrementPercentageUpdated(uint256 minBidIncrementPercentage);
+    event AuctionMinBidIncrementPercentageUpdated(
+        uint256 minBidIncrementPercentage
+    );
 
     function settleAuction() external;
 
     function settleCurrentAndCreateNewAuction() external;
 
-    function createBid(uint256 nounId) external payable;
+    function createBid(uint256 nounId, uint256 bidAmount) external;
 
     function pause() external;
 
@@ -61,5 +76,7 @@ interface INounsAuctionHouse {
 
     function setReservePrice(uint256 reservePrice) external;
 
-    function setMinBidIncrementPercentage(uint8 minBidIncrementPercentage) external;
+    function setMinBidIncrementPercentage(
+        uint8 minBidIncrementPercentage
+    ) external;
 }

@@ -2,11 +2,15 @@
 
 pragma solidity ^0.8.19;
 
-import { INounsAuctionHouse } from '../interfaces/INounsAuctionHouse.sol';
+import {INounsAuctionHouse} from "../interfaces/INounsAuctionHouse.sol";
 
 contract MaliciousBidder {
-    function bid(INounsAuctionHouse auctionHouse, uint256 tokenId) public payable {
-        auctionHouse.createBid{ value: msg.value }(tokenId);
+    function bid(
+        INounsAuctionHouse auctionHouse,
+        uint256 tokenId,
+        uint256 value
+    ) public {
+        auctionHouse.createBid(tokenId, value);
     }
 
     receive() external payable {
