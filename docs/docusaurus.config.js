@@ -43,13 +43,13 @@ const config = {
           sidebarPath: "./sidebars.js",
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: "https://github.com/JasoonS/eth-istanbul-countries",
+          editUrl: "https://github.com/float-capital/last-lands",
         },
         // blog: {
         //   showReadingTime: true,
         //   // Please change this to your repo.
         //   // Remove this to remove the "edit this page" links.
-        //   editUrl: "https://github.com/JasoonS/eth-istanbul-countries",
+        //   editUrl: "https://github.com/float-capital/last-lands",
         // },
         theme: {
           customCss: "./src/css/custom.css",
@@ -78,7 +78,7 @@ const config = {
           },
           // { to: "/blog", label: "Blog", position: "left" },
           {
-            href: "https://github.com/JasoonS/eth-istanbul-countries",
+            href: "https://github.com/float-capital/last-lands",
             label: "GitHub",
             position: "right",
           },
