@@ -31,6 +31,8 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {INounsAuctionHouse} from "./interfaces/INounsAuctionHouse.sol";
 import {INounsToken} from "./interfaces/INounsToken.sol";
 
+import "hardhat/console.sol";
+
 contract NounsAuctionHouse is
     INounsAuctionHouse,
     PausableUpgradeable,
@@ -110,28 +112,33 @@ contract NounsAuctionHouse is
      * @notice Create a bid for a Noun, with a given amount.
      * @dev This contract only accepts payment in ETH.
      */
-    function createBid(uint256 nounId) external payable override nonReentrant {
+    function createBid(
+        uint256 nounId,
+        uint256 bidValue
+    ) external override nonReentrant {
+        _recievePaymentToken(bidValue);
+
         INounsAuctionHouse.Auction memory _auction = auction;
 
         require(_auction.nounId == nounId, "Noun not up for auction");
         require(block.timestamp < _auction.endTime, "Auction expired");
-        require(msg.value >= reservePrice, "Must send at least reservePrice");
+        require(bidValue >= reservePrice, "Must send at least reservePrice");
         require(
-            msg.value >=
+            bidValue >=
                 _auction.amount +
                     ((_auction.amount * minBidIncrementPercentage) / 100),
             "Must send more than last bid by minBidIncrementPercentage amount"
         );
 
-        address payable lastBidder = _auction.bidder;
+        address lastBidder = _auction.bidder;
 
         // Refund the last bidder, if applicable
         if (lastBidder != address(0)) {
-            _safeTransferPaymentWithFallback(lastBidder, _auction.amount);
+            _safeTransferPaymentToken(lastBidder, _auction.amount);
         }
 
-        auction.amount = msg.value;
-        auction.bidder = payable(msg.sender);
+        auction.amount = bidValue;
+        auction.bidder = msg.sender;
 
         // Extend the auction if the bid was received within `timeBuffer` of the auction end time
         bool extended = _auction.endTime - block.timestamp < timeBuffer;
@@ -139,7 +146,7 @@ contract NounsAuctionHouse is
             auction.endTime = _auction.endTime = block.timestamp + timeBuffer;
         }
 
-        emit AuctionBid(_auction.nounId, msg.sender, msg.value, extended);
+        emit AuctionBid(_auction.nounId, msg.sender, bidValue, extended);
 
         if (extended) {
             emit AuctionExtended(_auction.nounId, _auction.endTime);
@@ -254,7 +261,7 @@ contract NounsAuctionHouse is
         }
 
         if (_auction.amount > 0) {
-            _safeTransferPaymentWithFallback(owner(), _auction.amount);
+            _safeTransferPaymentTokenOut(owner(), _auction.amount);
         }
 
         emit AuctionSettled(_auction.nounId, _auction.bidder, _auction.amount);
@@ -263,11 +270,25 @@ contract NounsAuctionHouse is
     /**
      * @notice Transfer ETH. If the ETH transfer fails, wrap the ETH and try send it as WETH.
      */
-    function _safeTransferPaymentWithFallback(
-        address to,
-        uint256 amount
-    ) internal {
+    function _safeTransferPaymentToken(address to, uint256 amount) internal {
         // TODO: this isn't a 'safe' tranfer
         IERC20(paymentToken).transferFrom(msg.sender, to, amount);
+    }
+
+    function _safeTransferPaymentTokenOut(address to, uint256 amount) internal {
+        // TODO: this isn't a 'safe' tranfer
+        IERC20(paymentToken).transfer(to, amount);
+    }
+
+    function _recievePaymentToken(uint256 amount) internal {
+        bool success = IERC20(paymentToken).transferFrom(
+            msg.sender,
+            address(this),
+            amount
+        );
+        require(
+            success,
+            "NounsAuctionHouseFork: payment token transfer failed"
+        );
     }
 }
