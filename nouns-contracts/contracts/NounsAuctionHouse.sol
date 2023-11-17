@@ -93,7 +93,7 @@ contract NounsAuctionHouse is
      * @notice Settle the current auction, mint a new Noun, and put it up for auction.
      */
     function settleCurrentAndCreateNewAuction()
-        external
+        public
         override
         nonReentrant
         whenNotPaused
@@ -243,6 +243,20 @@ contract NounsAuctionHouse is
         } catch Error(string memory) {
             _pause();
         }
+    }
+
+    function bringAuctionEndEarly() public onlyOwner {
+        require(
+            auction.startTime < block.timestamp,
+            "Auction has already begun"
+        );
+        require(auction.startTime != 0, "Auction hasn't begun");
+        auction.endTime = block.timestamp - 1;
+    }
+
+    function endEarlySettleCurrentAndCreateNewAuction() public onlyOwner {
+        bringAuctionEndEarly();
+        settleCurrentAndCreateNewAuction();
     }
 
     /**
