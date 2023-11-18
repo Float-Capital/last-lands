@@ -16,7 +16,7 @@ const countriesList = countriesData.objects.world.geometries.map(
 );
 shuffleArray(countriesList);
 
-function shuffleArray(arr) {
+function shuffleArray(arr: Array<string>) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     // Swap arr[i] and arr[j]
@@ -33,10 +33,10 @@ const DemoSimulation = () => {
   const [auctionAnimationDone, setAuctionAnimationDone] = useState(false);
 
   // const [showList, setShowList] = useState(countriesList);
-  const [showList, setShowList] = useState([]);
+  const [showList, setShowList] = useState<Array<string>>([]);
 
-  const battleFrameRate = 1800;
-  const auctionFrameRate = 120;
+  const battleFrameRate = 1300;
+  const auctionFrameRate = 80;
 
   useEffect(() => {
     if (!auctionAnimationDone) {
@@ -58,7 +58,9 @@ const DemoSimulation = () => {
         setShowList((showList) => {
           let countryToAdd = countriesList[showList.length];
 
-          showList.push(countryToAdd);
+          let newShowList: string[] = showList;
+
+          newShowList.push(countryToAdd);
           return showList;
         });
       }
@@ -132,7 +134,7 @@ const DemoSimulation = () => {
 
                       return (
                         <Geography
-                          key={geo.rsmKey + showList.Length}
+                          key={geo.rsmKey + showList.length}
                           geography={geo}
                           style={{
                             default: {

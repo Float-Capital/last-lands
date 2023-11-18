@@ -104,9 +104,10 @@ export default function Layout(props: Props) {
               </span>
             </Link>
             <a
-              href="https://docs.thelastlands.com"
+              href="https://docs.thelastlands.com/docs/introduction"
               className="mx-8 hover:underline hover:text-white"
               target="_blank"
+              rel="noopener noreferrer"
             >
               Docs
             </a>

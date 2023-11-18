@@ -6,6 +6,8 @@ sidebar_position: 1
 
 <img src="/img/lastlands.jpg" style={{width:"60%", margin: "auto"}} />
 
+[**Presentation deck**](https://docs.google.com/presentation/d/1QVZTLv0xdGNLfktdzUU-S07cI5fK6HfABocyB-_h8-8/edit?usp=sharing)
+
 ## Game play
 
 Step into the enigmatic realm of **The Last Lands**, where nations rise and fall like echoes in the desolate winds. This is not a mere game, it is a journey through mysterious terrains, a quest for dominance in a world forgotten by time.
