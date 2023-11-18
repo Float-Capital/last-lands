@@ -38,7 +38,7 @@ const publicKey = wallet.publicKey;
 // console.log('Address:', address);
 // console.log('Public Key:', publicKey);
 
-const auctionContractAddress = "0xda9B7D45209982bd41805b4B15cbdc1373C03094";
+const auctionContractAddress = "0xd90428681D4C4ae73ef4A9A6a47A460935Ba628f";
 const auctionContractABI = [
   "function createBid(uint256 nounId, uint256 bidValue) external",
   "function auction() view returns (tuple(uint256 nounId, uint256 amount, uint256 startTime, uint256 endTime, address bidder, bool settled))",
@@ -76,13 +76,13 @@ export default function (props: any) {
       console.log("allowance", allowance.toString())
       const bidAmount = "100000000000000000" /* 0.1 DAI */
       if (allowance.lt(bidAmount)) {
-        await console.log("Allowance not enough - approving")
-        gloContract.approve(auctionContractAddress, "10000000000000000000000000000000000");
+        console.log("Allowance not enough - approving")
+        await (await gloContract.approve(auctionContractAddress, "10000000000000000000000000000000000")).wait()
       }
 
-      let settleTx = await auctionContract.settleCurrentAndCreateNewAuction({ gasLimit: 10000000 })
-      console.log("Settling auction", settleTx.hash)
-      await settleTx.wait();
+      // let settleTx = await auctionContract.settleCurrentAndCreateNewAuction({ gasLimit: 10000000 })
+      // console.log("Settling auction", settleTx.hash)
+      // await settleTx.wait();
 
       console.log("Creating bid")
 
