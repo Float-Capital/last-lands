@@ -11,3 +11,6 @@ Our project integrates Worldcoin signature verification to prevent bots partakin
 
 - Use Worldcoin to prevent sybil attack auction price manipulation
 It is possible for a user to act as many accounts and try and manipulate the price of the auction to inflate their own value
+
+- Improved battle mechanics
+Currently the battle elimination criteria is that randomly the countries are dropped from the game daily. As we couldn't use VRF or equivalent on Scroll we used the previous block hash for randomness which is technically manipulatable by miners. This and incorporating value to some weighted values to countries such as the [global fire power index](https://www.globalfirepower.com/countries-listing.php) or something like carbon emissions per capita as a proxy for how sustainable a country is. 
