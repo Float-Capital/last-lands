@@ -8,9 +8,9 @@ import {
   WalletOptionsModal,
   BidModal,
 } from "../components";
-import Map from "../components/map";
+import DemoSimulation from "../components/DemoSimulation";
 
-const Home: NextPage = () => {
+const Demo: NextPage = () => {
   const [showWalletOptions, setShowWalletOptions] = useState(false);
 
   const [{ data: accountData, loading: accountLoading }] = useAccount();
@@ -62,10 +62,10 @@ const Home: NextPage = () => {
         showWalletOptions={showWalletOptions}
         setShowWalletOptions={setShowWalletOptions}
       >
-        <Map />
+        <DemoSimulation />
       </Layout>
     </>
   );
 };
 
-export default Home;
+export default Demo;

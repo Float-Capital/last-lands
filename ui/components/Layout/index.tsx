@@ -3,6 +3,7 @@ import Image from "next/image";
 import { ReactNode } from "react";
 import { Button, MenuDropdown, WalletOptionsModal } from "..";
 import { useAccount } from "wagmi";
+import Link from "next/link";
 
 interface Props {
   children: ReactNode;
@@ -76,7 +77,7 @@ export default function Layout(props: Props) {
     <div>
       <Head>
         <title>The Last Lands</title>
-        <meta name="description" content="NextJS and wagmi template" />
+        <meta name="description" content="The Last lands" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -96,7 +97,23 @@ export default function Layout(props: Props) {
               The Last Lands
             </h4> */}
           </div>
-          {renderButton()}
+          <div className="flex flex-row text-primary ">
+            <Link href="/demo">
+              <span className="mx-8 hover:underline hover:text-white">
+                Game simulation
+              </span>
+            </Link>
+            <a
+              href="https://docs.thelastlands.com"
+              className="mx-8 hover:underline hover:text-white"
+              target="_blank"
+            >
+              Docs
+            </a>
+            <span className="ml-8 hover:underline hover:text-white">
+              {renderButton()}
+            </span>
+          </div>
         </div>
       </div>
       {children}
