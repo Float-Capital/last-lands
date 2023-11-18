@@ -35,8 +35,8 @@ const DemoSimulation = () => {
   // const [showList, setShowList] = useState(countriesList);
   const [showList, setShowList] = useState([]);
 
-  const battleFrameRate = 1800;
-  const auctionFrameRate = 120;
+  const battleFrameRate = 1300;
+  const auctionFrameRate = 80;
 
   useEffect(() => {
     if (!auctionAnimationDone) {
