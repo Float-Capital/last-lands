@@ -513,7 +513,6 @@ const Map = () => {
                   return geographies.map((geo) => {
                     let isSelected = selectedListOfCountries.includes(geo.id);
                     let isActive = ((!!activeCountryCodeIndex) ? countryIsoCodes[activeCountryCodeIndex] : "null") == geo.id;
-                    console.log("isActive", isActive, countryIsoCodes[activeCountryCodeIndex], geo.id, !!activeCountryCodeIndex ? countryIsoCodes[activeCountryCodeIndex] : "null")
 
                     return (
                       <Geography
@@ -551,7 +550,7 @@ const Map = () => {
       />
 
       <div className="fixed bottom-0 right-0 p-5">
-        <h2 className="text-2xl font-bold text-right">Bid on {(!!activeCountryCodeIndex) ? countriesNames[countryIsoCodes[activeCountryCodeIndex]]: "loading"}</h2>
+        <h2 className="text-2xl font-bold text-right">Bid on {(!!activeCountryCodeIndex) ? countriesNames[countryIsoCodes[activeCountryCodeIndex] as keyof typeof countriesNames]: "loading"}</h2>
         <button onClick={() => {
           optAuctionContract?.createBid(activeCountryCodeIndex, "100000000000000000", { gasLimit: 10000000 })
         }}>
