@@ -119,7 +119,7 @@ const Home: NextPage = () => {
       </Layout>
       <BidModal
         open={openBidModal}
-        setOpen={(_) => setOpenBidModal()}
+        setOpen={setOpenBidModal}
         isoCode={selectedIsoCode}
         selectedCountryName={selectedCountryName}
       />
