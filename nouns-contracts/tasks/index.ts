@@ -4,6 +4,7 @@ export * from './deploy';
 export * from './deploy-ci';
 export * from './deploy-local';
 export * from './deploy-and-configure';
+export * from './deploy-last-lands';
 export * from './mint-noun';
 export * from './populate-descriptor';
 export * from './run-local';
