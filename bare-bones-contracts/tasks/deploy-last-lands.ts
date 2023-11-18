@@ -138,7 +138,7 @@ task(
     const contracts: Record<ContractNamesDAOV3, ContractDeployment> = {
       NounsToken: {
         args: [
-          deployer.address, // TODO: pass the right minter address here, is it the auction?
+          deployer.address, // TODO: after this we call the setMinter function to set it to the nounsActionHouse
           proxyRegistryAddress,
         ],
       },
@@ -429,6 +429,15 @@ task(
 
       console.log(`${name} contract deployed to ${deployedContract.address}`);
     }
+
+    // Set the auction house in the battle contract as the last step
+    let setMinterToAuctionHouse =
+      await deployment.NounsToken.instance.setMinter(
+        deployment.NounsAuctionHouse.address
+      );
+    await setMinterToAuctionHouse.wait();
+
+    console.log("set minter role to auction house on NounsToken");
 
     // Set the auction house in the battle contract as the last step
     let setAuctionForBattleTx =

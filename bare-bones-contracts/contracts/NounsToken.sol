@@ -51,8 +51,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Enumerable {
     }
 
     constructor(        
-        address _minter,
-       
+        address _minter,       
         IProxyRegistry _proxyRegistry
     ) ERC721('Lands', 'Land') {        
         minter = _minter;
