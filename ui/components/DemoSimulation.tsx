@@ -41,7 +41,7 @@ const DemoSimulation = () => {
   useEffect(() => {
     if (!auctionAnimationDone) {
       const interval = setInterval(() => {
-        setDayCountUp((dayCountUp) => dayCountUp + 2);
+        setDayCountUp((dayCountUp) => dayCountUp + 1);
       }, auctionFrameRate);
       return () => {
         clearInterval(interval);
