@@ -8,7 +8,7 @@ import {
   WalletOptionsModal,
   BidModal,
 } from "../components";
-import Map from "../components/map";
+import Map from "../components/Map";
 
 const Home: NextPage = () => {
   const [showWalletOptions, setShowWalletOptions] = useState(false);
