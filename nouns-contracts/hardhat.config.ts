@@ -45,6 +45,12 @@ const config: HardhatUserConfig = {
         ? { mnemonic: process.env.MNEMONIC }
         : [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
     },
+    scrollSepolia: {
+      url: `https://sepolia-rpc.scroll.io`,
+      accounts: process.env.MNEMONIC
+        ? { mnemonic: process.env.MNEMONIC }
+        : [process.env.WALLET_PRIVATE_KEY!].filter(Boolean),
+    },
     hardhat: {
       initialBaseFeePerGas: 0,
     },
