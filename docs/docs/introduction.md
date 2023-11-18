@@ -2,6 +2,8 @@
 sidebar_position: 1
 ---
 
+> Note: To get GHO token on Scroll Sepolia network use the guide [here](https://devconnect.scroll.systems/cheatsheet)
+
 # The Last Lands
 
 <img src="/img/lastlands.jpg" style={{width:"60%", margin: "auto"}} />
