@@ -1,4 +1,7 @@
 import React from "react";
+import Button from "../Button";
+import { auctionContractABI, auctionContractAddress, gloTokenAddr } from "../Contracts";
+import { erc20ABI } from "wagmi";
 
 const ethers = require("ethers");
 
@@ -42,15 +45,9 @@ const publicKey = wallet.publicKey;
 // console.log('Public Key:', publicKey);
 
 // const auctionContractAddress = "0xd90428681D4C4ae73ef4A9A6a47A460935Ba628f";
-const auctionContractAddress = "0xda9B7D45209982bd41805b4B15cbdc1373C03094";
-const auctionContractABI = [
-  "function createBid(uint256 nounId, uint256 bidValue) external",
-  "function auction() view returns (tuple(uint256 nounId, uint256 amount, uint256 startTime, uint256 endTime, address bidder, bool settled))",
-  "function settleCurrentAndCreateNewAuction() external",
-  "function unpause() external override",
-  "function pause() external override onlyOwner",
-  "function endEarlySettleCurrentAndCreateNewAuction() public onlyOwner",
-];
+// const auctionContractAddress = "0xda9B7D45209982bd41805b4B15cbdc1373C03094";
+// const auctionContractAddress = "0xEB0b523838f7382324ef0dE2b8f8b6D0b3C3d94c";
+
 
 const auctionContract = new ethers.Contract(
   auctionContractAddress,
@@ -58,16 +55,11 @@ const auctionContract = new ethers.Contract(
   wallet
 );
 
-const gloTokenAddr = "0xD9692f1748aFEe00FACE2da35242417dd05a8615";
-const erc20ABI = [
-  "function approve(address spender, uint256 amount) public returns (bool)",
-  "function allowance(address owner, address spender) external view returns (uint256)",
-];
 const gloContract = new ethers.Contract(gloTokenAddr, erc20ABI, wallet);
 
 export default function (props: any) {
   const [state, updateState] = React.useState(() => {
-    return { isActive: true };
+    return { isActive: false };
   });
 
   const toggleState = () => {
@@ -78,60 +70,73 @@ export default function (props: any) {
       console.log("running the function");
       const auction = await auctionContract.auction();
       console.log(auction);
+      console.log("Processing auction for ", auction.nounId.toString())
 
-      const allowance = await gloContract.allowance(
-        botUserAddress,
-        auctionContractAddress
-      );
-      console.log("allowance", allowance.toString());
-      const bidAmount = "100000000000000000"; /* 0.1 DAI */
-      if (allowance.lt(bidAmount)) {
-        console.log("Allowance not enough - approving");
-        await (
-          await gloContract.approve(
-            auctionContractAddress,
-            "10000000000000000000000000000000000"
-          )
-        ).wait();
+      if (auction.nounId.toString() !== "202") {
+
+        const allowance = await gloContract.allowance(
+          botUserAddress,
+          auctionContractAddress
+        );
+        console.log("allowance", allowance.toString());
+        const bidAmount = "100000000000000000"; /* 0.1 DAI */
+        if (allowance.lt(bidAmount)) {
+          console.log("Allowance not enough - approving");
+          await (
+            await gloContract.approve(
+              auctionContractAddress,
+              "10000000000000000000000000000000000"
+            )
+          ).wait();
+        }
+
+        const tx = await auctionContract.createBid(auction.nounId, bidAmount, {
+          gasLimit: 10000000,
+        });
+        console.log(`Transaction hash: ${tx.hash}`);
+        await tx.wait();
+
+        console.log("Creating test");
+        let testTx = await auctionContract.endEarlySettleCurrentAndCreateNewAuction({
+          gasLimit: 10000000,
+        });
+        console.log("test", testTx.hash);
+        await testTx.wait();
+
+        // let settleTx = await auctionContract.settleCurrentAndCreateNewAuction({ gasLimit: 10000000 })
+        // console.log("Settling auction", settleTx.hash)
+        // await settleTx.wait();
+
+        console.log("Creating bid");
+
+        // const tx = await auctionContract.createBid(
+        //   1, bidAmount, { gasLimit: 10000000 }
+        // );
+
+        console.log("Transaction Hash:", tx.hash);
       }
-
-      console.log("Creating test");
-      let testTx = await auctionContract.settleCurrentAndCreateNewAuction({
-        gasLimit: 10000000,
-      });
-      console.log("etst", testTx.hash);
-      await testTx.wait();
-
-      // let settleTx = await auctionContract.settleCurrentAndCreateNewAuction({ gasLimit: 10000000 })
-      // console.log("Settling auction", settleTx.hash)
-      // await settleTx.wait();
-
-      console.log("Creating bid");
-
-      // const tx = await auctionContract.createBid(
-      //   1, bidAmount, { gasLimit: 10000000 }
-      // );
-      const tx = await auctionContract.createBid(0, bidAmount, {
-        gasLimit: 10000000,
-      });
-      console.log(`Transaction hash: ${tx.hash}`);
-      await tx.wait();
-
-      console.log("Transaction Hash:", tx.hash);
     } catch (error) {
       console.error("Error:", error);
     }
   };
   React.useEffect(() => {
-    createRandomBid();
-    // while (state.isActive) {
-    // }
+    const runCreateRandomBidIfActive = async () => {
+      await createRandomBid();
+      if (state.isActive) {
+        await runCreateRandomBidIfActive();
+      }
+    }
+
+    runCreateRandomBidIfActive();
+
   }, [state.isActive]);
 
   return (
     <div>
       <button onClick={toggleState}>
-        {state.isActive ? "Active" : "Inactive"}
+        <Button loading={false}>
+          {state.isActive ? "Active" : "Inactive"}
+        </Button>
       </button>
     </div>
   );

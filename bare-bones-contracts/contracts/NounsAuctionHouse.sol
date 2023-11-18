@@ -262,7 +262,7 @@ contract NounsAuctionHouse is
         }
     }
 
-    function bringAuctionEndEarly() public onlyOwner {
+    function bringAuctionEndEarly() public /* onlyOwner */ {
         require(
             auction.startTime < block.timestamp,
             "Auction has already begun"
@@ -271,7 +271,7 @@ contract NounsAuctionHouse is
         auction.endTime = block.timestamp - 1;
     }
 
-    function endEarlySettleCurrentAndCreateNewAuction() public onlyOwner {
+    function endEarlySettleCurrentAndCreateNewAuction() public /* onlyOwner */ {
         bringAuctionEndEarly();
         settleCurrentAndCreateNewAuction();
     }
