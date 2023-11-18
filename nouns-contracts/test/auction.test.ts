@@ -15,7 +15,7 @@ import { deployErc20, deployNounsToken, populateDescriptorV2 } from './utils';
 chai.use(solidity);
 const { expect } = chai;
 
-describe.only('NounsAuctionHouse', () => {
+describe('NounsAuctionHouse', () => {
   let nounsAuctionHouse: NounsAuctionHouse;
   let nounsToken: NounsToken;
   let paymentToken: TestERC20;

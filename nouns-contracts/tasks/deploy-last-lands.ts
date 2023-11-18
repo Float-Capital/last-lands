@@ -46,7 +46,7 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
   .addOptionalParam(
     'auctionReservePrice',
     'The auction reserve price (wei)',
-    1 /* 1 wei */,
+    10 /* 1 wei */,
     types.int,
   )
   .addOptionalParam(
@@ -446,15 +446,17 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
     await setAuctionForBattleTx.wait()
     console.log("set battle acoution contract to auction house")
 
+    const auctionContract = deployment.NounsAuctionHouse.instance.connect(deployer)
+    const auctionContractAddress = auctionContract.address
+    await (await auctionContract.unpause()).wait();
+
     const gloTokenAddr = "0xD9692f1748aFEe00FACE2da35242417dd05a8615";
     const erc20ABI = [
       "function approve(address spender, uint256 amount) public returns (bool)",
       "function allowance(address owner, address spender) external view returns (uint256)",
     ];
-    const gloContract = new ethers.Contract(gloTokenAddr, erc20ABI, deployer);
+    const gloContract = (new ethers.Contract(gloTokenAddr, erc20ABI, deployer)).connect(deployer);
 
-    const auctionContract = deployment.NounsAuctionHouse.instance
-    const auctionContractAddress = auctionContract.address
 
     const bidAmount = "100000000000000000" /* 0.1 DAI */
     const approveTx = await gloContract.approve(auctionContractAddress, "10000000000000000000000000000000000");

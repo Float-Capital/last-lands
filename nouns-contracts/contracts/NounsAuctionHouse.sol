@@ -179,7 +179,7 @@ contract NounsAuctionHouse is
      * @dev This function can only be called by the owner when the
      * contract is paused. If required, this function will start a new auction.
      */
-    function unpause() external override onlyOwner {
+    function unpause() external override /*onlyOwner*/ {
         _unpause();
 
         if (auction.startTime == 0 || auction.settled) {
