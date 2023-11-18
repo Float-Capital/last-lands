@@ -24,9 +24,9 @@
 
 pragma solidity ^0.8.6;
 
-import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+// import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {INounsAuctionHouse} from "./interfaces/INounsAuctionHouse.sol";
 import {INounsToken} from "./interfaces/INounsToken.sol";
@@ -36,9 +36,9 @@ import "hardhat/console.sol";
 
 contract NounsAuctionHouse is
     INounsAuctionHouse,
-    PausableUpgradeable,
-    ReentrancyGuardUpgradeable,
-    OwnableUpgradeable
+    // Pausable,
+    ReentrancyGuard,
+    Ownable
 {
     uint256 constant maxNounId = 202;
 
@@ -71,7 +71,7 @@ contract NounsAuctionHouse is
      * populate configuration values, and pause the contract.
      * @dev This function can only be called once.
      */
-    function initialize(
+    constructor(
         INounsToken _nouns,
         address _paymentToken,
         uint256 _timeBuffer,
@@ -80,12 +80,12 @@ contract NounsAuctionHouse is
         uint256 _duration,
         address _goodWillDistribution,
         address _battlePrizePool
-    ) external initializer {
-        __Pausable_init();
-        __ReentrancyGuard_init();
-        __Ownable_init();
+    ) {
+        // __Pausable_init();
+        // __ReentrancyGuard_init();
+        // __Ownable_init();
 
-        _pause();
+        // _pause();
 
         nouns = _nouns;
         paymentToken = _paymentToken;
@@ -105,7 +105,7 @@ contract NounsAuctionHouse is
         public
         override
         nonReentrant
-        whenNotPaused
+        // whenNotPaused
     {
         _settleAuction();
         _createAuction();
@@ -114,8 +114,9 @@ contract NounsAuctionHouse is
     /**
      * @notice Settle the current auction.
      * @dev This function can only be called when the contract is paused.
+     whenPaused
      */
-    function settleAuction() external override whenPaused nonReentrant {
+    function settleAuction() external override nonReentrant {
         _settleAuction();
     }
 
@@ -171,22 +172,22 @@ contract NounsAuctionHouse is
      * contract is unpaused. While no new auctions can be started when paused,
      * anyone can settle an ongoing auction.
      */
-    function pause() external override onlyOwner {
-        _pause();
-    }
+    // function pause() external override onlyOwner {
+    //     _pause();
+    // }
 
     /**
      * @notice Unpause the Nouns auction house.
      * @dev This function can only be called by the owner when the
      * contract is paused. If required, this function will start a new auction.
      */
-    function unpause() external override /*onlyOwner*/ {
-        _unpause();
+    // function unpause() external override /*onlyOwner*/ {
+    //     _unpause();
 
-        if (auction.startTime == 0 || auction.settled) {
-            _createAuction();
-        }
-    }
+    //     if (auction.startTime == 0 || auction.settled) {
+    //         _createAuction();
+    //     }
+    // }
 
     /**
      * @notice Set the auction time buffer.
@@ -224,6 +225,10 @@ contract NounsAuctionHouse is
         );
     }
 
+    function createAuction() external onlyOwner{
+        _createAuction();
+    }
+
     /**
      * @notice Create an auction.
      * @dev Store the auction details in the `auction` state variable and emit an AuctionCreated event.
@@ -249,10 +254,10 @@ contract NounsAuctionHouse is
             } else {
                 emit AuctionPeriodOver();
                 Battle(battlePizePool).startFight();
-                _pause();
+                // _pause();
             }
         } catch Error(string memory) {
-            _pause();
+            // _pause();
         }
     }
 

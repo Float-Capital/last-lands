@@ -134,6 +134,7 @@ task(
     // });
     const deployment: Record<ContractNamesDAOV3, DeployedContract> =
       {} as Record<ContractNamesDAOV3, DeployedContract>;
+
     const contracts: Record<ContractNamesDAOV3, ContractDeployment> = {
       NounsToken: {
         args: [
@@ -146,24 +147,34 @@ task(
       },
       NounsAuctionHouse: {
         args: [
-          () => deployment.NounsAuctionHouse.address,
-          () => deployment.NounsAuctionHouseProxyAdmin.address,
-          () => {
-            return new Interface(NounsAuctionHouseABI).encodeFunctionData(
-              "initialize",
-              [
-                deployment.NounsToken.address,
-                args.gho,
-                args.auctionTimeBuffer,
-                args.auctionReservePrice,
-                args.auctionMinIncrementBidPercentage,
-                args.auctionDuration,
-                donationRecipientAddress,
-                deployment.Battle.address,
-              ]
-            );
-          },
+          () => deployment.NounsToken.address,
+          args.gho,
+          args.auctionTimeBuffer,
+          args.auctionReservePrice,
+          args.auctionMinIncrementBidPercentage,
+          args.auctionDuration,
+          donationRecipientAddress,
+          () => deployment.Battle.address,
         ],
+        // args: [
+        //   () => deployment.NounsAuctionHouse.address,
+        //   () => deployment.NounsAuctionHouseProxyAdmin.address,
+        //   () => {
+        //     return new Interface(NounsAuctionHouseABI).encodeFunctionData(
+        //       "initialize",
+        //       [
+        //         deployment.NounsToken.address,
+        //         args.gho,
+        //         args.auctionTimeBuffer,
+        //         args.auctionReservePrice,
+        //         args.auctionMinIncrementBidPercentage,
+        //         args.auctionDuration,
+        //         donationRecipientAddress,
+        //         deployment.Battle.address,
+        //       ]
+        //     );
+        //   },
+        // ],
         waitForConfirmation: true,
       },
 
@@ -356,27 +367,27 @@ task(
         )} ETH`
       );
 
-      if (!args.autoDeploy) {
-        const result = await promptjs.get([
-          {
-            properties: {
-              confirm: {
-                pattern: /^(DEPLOY|SKIP|EXIT)$/,
-                description:
-                  'Type "DEPLOY" to confirm, "SKIP" to skip this contract, or "EXIT" to exit.',
-              },
-            },
-          },
-        ]);
-        if (result.operation === "SKIP") {
-          console.log(`Skipping ${name} deployment...`);
-          continue;
-        }
-        if (result.operation === "EXIT") {
-          console.log("Exiting...");
-          return;
-        }
-      }
+      // if (!args.autoDeploy) {
+      //   const result = await promptjs.get([
+      //     {
+      //       properties: {
+      //         confirm: {
+      //           pattern: /^(DEPLOY|SKIP|EXIT)$/,
+      //           description:
+      //             'Type "DEPLOY" to confirm, "SKIP" to skip this contract, or "EXIT" to exit.',
+      //         },
+      //       },
+      //     },
+      //   ]);
+      //   if (result.operation === "SKIP") {
+      //     console.log(`Skipping ${name} deployment...`);
+      //     continue;
+      //   }
+      //   if (result.operation === "EXIT") {
+      //     console.log("Exiting...");
+      //     return;
+      //   }
+      // }
       console.log(`Deploying ${name}...`);
 
       const nextNonce = await ethers.provider.getTransactionCount(
@@ -422,7 +433,7 @@ task(
     // Set the auction house in the battle contract as the last step
     let setAuctionForBattleTx =
       await deployment.Battle.instance.setAuctionContract(
-        deployment.NounsAuctionHouseProxy.address
+        deployment.NounsAuctionHouse.address
       );
     await setAuctionForBattleTx.wait();
     console.log("set battle acoution contract to auction house");
@@ -430,8 +441,8 @@ task(
     const auctionContract =
       deployment.NounsAuctionHouse.instance.connect(deployer);
     const auctionContractAddress = auctionContract.address;
-    await (await auctionContract.unpause()).wait();
-
+    // await (await auctionContract.unpause()).wait();
+    console.log("here");
     const gloTokenAddr = "0xD9692f1748aFEe00FACE2da35242417dd05a8615";
     const erc20ABI = [
       "function approve(address spender, uint256 amount) public returns (bool)",
@@ -443,17 +454,26 @@ task(
       deployer
     ).connect(deployer);
 
+    console.log("here2");
     const bidAmount = "100000000000000000"; /* 0.1 DAI */
     const approveTx = await gloContract.approve(
       auctionContractAddress,
       "10000000000000000000000000000000000"
     );
 
+    console.log("her3");
     await approveTx.wait();
+    // await (await auctionContract.unpause()).wait();
+    let createAuctionTx = await auctionContract.createAuction({
+      gasLimit: 10000000,
+    });
+    console.log("her4.1");
 
+    await createAuctionTx.wait();
     let settleTx = await auctionContract.settleCurrentAndCreateNewAuction({
       gasLimit: 10000000,
     });
+    console.log("her4");
 
     await settleTx.wait();
 

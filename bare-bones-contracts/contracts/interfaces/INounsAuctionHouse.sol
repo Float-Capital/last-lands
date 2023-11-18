@@ -70,9 +70,9 @@ interface INounsAuctionHouse {
 
     function createBid(uint256 nounId, uint256 bidAmount) external;
 
-    function pause() external;
+    // function pause() external;
 
-    function unpause() external;
+    // function unpause() external;
 
     function setTimeBuffer(uint256 timeBuffer) external;
 
