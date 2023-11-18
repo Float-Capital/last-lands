@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function BidModal(props: Props) {
+export default function BidModal(props: any) {
   let { open, setOpen, isoCode, selectedCountryName } = props;
 
   return open ? (

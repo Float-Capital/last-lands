@@ -63,6 +63,14 @@ const Home: NextPage = () => {
 
   let selectedListOfCountries = ["AFG", "GHA"];
 
+  // use this to simulate the game display
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     console.log('This will run every second!');
+  //   }, 1000);
+  //   return () => clearInterval(interval);
+  // }, []);
+
   return (
     <>
       <WalletOptionsModal
@@ -119,7 +127,7 @@ const Home: NextPage = () => {
       </Layout>
       <BidModal
         open={openBidModal}
-        setOpen={(_) => setOpenBidModal()}
+        setOpen={setOpenBidModal}
         isoCode={selectedIsoCode}
         selectedCountryName={selectedCountryName}
       />
