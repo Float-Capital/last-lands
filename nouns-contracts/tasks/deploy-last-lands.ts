@@ -29,6 +29,8 @@ const NOUNS_ART_NONCE_OFFSET = 4;
 const AUCTION_HOUSE_PROXY_NONCE_OFFSET = 9;
 const GOVERNOR_N_DELEGATOR_NONCE_OFFSET = 23;
 
+let deploymentKeys: Array<ContractNamesDAOV3> = []
+
 task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for testing')
   .addFlag('autoDeploy', 'Deploy all contracts without user interaction')
   .addOptionalParam('weth', 'The WETH contract address', '0xd9692f1748afee00face2da35242417dd05a8615', types.string)
@@ -395,12 +397,25 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
         libraries: contract?.libraries?.() ?? {},
       };
 
-      await hre.run("verify:verify", deployment[name as ContractNamesDAOV3]);
+      deploymentKeys.push(name as ContractNamesDAOV3)
+      console.log(`pushed ${name as ContractNamesDAOV3} to verification array for later`)
 
       contract.validateDeployment?.();
 
       console.log(`${name} contract deployed to ${deployedContract.address}`);
     }
 
+    console.log("Will run:")
+    for (let cName of deploymentKeys) {
+      console.log(`// ${cName}
+      await hre.run("verify:verify", ${JSON.stringify(deployment[cName as ContractNamesDAOV3])});`)
+    }
+
+    // Actual run
+    for (let cName of deploymentKeys) {
+      console.log(`running: ${cName}`)
+      console.log(`await hre.run("verify:verify", ${JSON.stringify(deployment[cName as ContractNamesDAOV3])});`)
+      await hre.run("verify:verify", deployment[cName as ContractNamesDAOV3]);
+    }
     return deployment;
   });
