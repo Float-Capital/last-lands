@@ -24,6 +24,7 @@ export type ContractNamesDAOV2 = Exclude<ContractName, 'NounsDAOLogicV1' | 'Noun
 export type ContractNamesDAOV3 =
   | Exclude<ContractName, 'NounsDAOLogicV1' | 'NounsDAOProxy' | 'NounsDAOExecutor'>
   | 'NounsDAOLogicV3'
+  | 'Battle'
   | 'NounsDAOProxyV3'
   | 'NounsDAOV3Admin'
   | 'NounsDAOV3DynamicQuorum'

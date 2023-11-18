@@ -1,16 +1,46 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {INounsToken} from "./interfaces/INounsToken.sol";
 
 contract Battle {
     uint256 round = 0;
     uint8[202][9] public participants; // Array of 204 participants
+    // Just for hackathon
+    address public eoaAdmin;
+    address public auctionHouse;
 
-    constructor() {
+    bool public fightIsActive = false;
+
+    IERC20 public gho;
+
+    INounsToken public nouns;
+
+    event BattleResults(uint256 roundNumber, uint8[202] results);
+
+    constructor(IERC20 _gho, INounsToken _nouns) {
         // Initialize the participants array with some values (for example, 1 to 204)
         for (uint8 i = 0; i < participants[0].length; i++) {
             participants[0][i] = i;
         }
+
+        eoaAdmin = tx.origin;
+
+        gho = _gho;
+        nouns = _nouns;
+    }
+
+    function setAuctionContract(address _auctionHouse) public {
+        require(tx.origin == eoaAdmin);
+
+        auctionHouse = _auctionHouse;
+    }
+
+    function startFight() public {
+        require(msg.sender == auctionHouse);
+
+        fightIsActive = true;
     }
 
     function getBinaryDigit(
@@ -27,6 +57,7 @@ contract Battle {
     }
 
     function fight() external {
+        require(fightIsActive);
         uint8[9] memory numberOfParticipantsInRound = [
             202,
             101,
@@ -77,5 +108,17 @@ contract Battle {
                 ];
             }
         }
+
+        emit BattleResults(round, participants[round]);
+
+        if (numberOfParticipantsInRound[round] == 1) {
+            address winner = nouns.ownerOf(participants[round][0]);
+            sendAllTokensToWinner(winner);
+        }
+    }
+
+    function sendAllTokensToWinner(address winner) internal {
+        uint256 totalBalance = gho.balanceOf(address(this));
+        gho.transfer(winner, totalBalance);
     }
 }

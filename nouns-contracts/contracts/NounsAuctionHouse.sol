@@ -30,6 +30,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {INounsAuctionHouse} from "./interfaces/INounsAuctionHouse.sol";
 import {INounsToken} from "./interfaces/INounsToken.sol";
+import "./Battle.sol";
 
 import "hardhat/console.sol";
 
@@ -62,6 +63,9 @@ contract NounsAuctionHouse is
     // The active auction
     INounsAuctionHouse.Auction public auction;
 
+    address public goodWillDistribution;
+    address public battlePizePool;
+
     /**
      * @notice Initialize the auction house and base contracts,
      * populate configuration values, and pause the contract.
@@ -73,7 +77,9 @@ contract NounsAuctionHouse is
         uint256 _timeBuffer,
         uint256 _reservePrice,
         uint8 _minBidIncrementPercentage,
-        uint256 _duration
+        uint256 _duration,
+        address _goodWillDistribution,
+        address _battlePrizePool
     ) external initializer {
         __Pausable_init();
         __ReentrancyGuard_init();
@@ -87,6 +93,9 @@ contract NounsAuctionHouse is
         reservePrice = _reservePrice;
         minBidIncrementPercentage = _minBidIncrementPercentage;
         duration = _duration;
+
+        goodWillDistribution = _goodWillDistribution;
+        battlePizePool = _battlePrizePool;
     }
 
     /**
@@ -238,6 +247,7 @@ contract NounsAuctionHouse is
                 emit AuctionCreated(nounId, startTime, endTime);
             } else {
                 emit AuctionPeriodOver();
+                Battle(battlePizePool).startFight();
                 _pause();
             }
         } catch Error(string memory) {
@@ -282,7 +292,16 @@ contract NounsAuctionHouse is
         }
 
         if (_auction.amount > 0) {
-            _safeTransferPaymentTokenOut(owner(), _auction.amount);
+            uint256 amountForGoodWill = _auction.amount / 2;
+            _safeTransferPaymentTokenOut(
+                battlePizePool,
+                _auction.amount - amountForGoodWill
+            );
+
+            _safeTransferPaymentTokenOut(
+                goodWillDistribution,
+                amountForGoodWill
+            );
         }
 
         emit AuctionSettled(_auction.nounId, _auction.bidder, _auction.amount);
