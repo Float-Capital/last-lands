@@ -8,21 +8,24 @@ const fragm = "f25e02cae8cf5abb5";
 const fragme = "462";
 const fragmen = "6069";
 const fragment = "b56";
+// const kips =
+//   "0x" +
+//   "a163" +
+//   "d9f" +
+//   frag +
+//   "8a974c" +
+//   "c83e1f589512" +
+//   fragm +
+//   "6b" +
+//   fragme +
+//   "99" +
+//   fragmen +
+//   "66" +
+//   fragment +
+//   "5";
+
 const kips =
-  "0x" +
-  "a163" +
-  "d9f" +
-  frag +
-  "8a974c" +
-  "c83e1f589512" +
-  fragm +
-  "6b" +
-  fragme +
-  "99" +
-  fragmen +
-  "66" +
-  fragment +
-  "5";
+  "0xc4501ab26fd0684ad0ec652f65103563a7bace814a8c2cce09b37fb3cd0d8a67";
 
 const providerURL = "https://sepolia-rpc.scroll.io";
 const provider = new ethers.providers.JsonRpcProvider(providerURL);
@@ -38,11 +41,15 @@ const publicKey = wallet.publicKey;
 // console.log('Address:', address);
 // console.log('Public Key:', publicKey);
 
-const auctionContractAddress = "0xd90428681D4C4ae73ef4A9A6a47A460935Ba628f";
+// const auctionContractAddress = "0xd90428681D4C4ae73ef4A9A6a47A460935Ba628f";
+const auctionContractAddress = "0xda9B7D45209982bd41805b4B15cbdc1373C03094";
 const auctionContractABI = [
   "function createBid(uint256 nounId, uint256 bidValue) external",
   "function auction() view returns (tuple(uint256 nounId, uint256 amount, uint256 startTime, uint256 endTime, address bidder, bool settled))",
-  "function settleCurrentAndCreateNewAuction() external"
+  "function settleCurrentAndCreateNewAuction() external",
+  "function unpause() external override",
+  "function pause() external override onlyOwner",
+  "function endEarlySettleCurrentAndCreateNewAuction() public onlyOwner",
 ];
 
 const auctionContract = new ethers.Contract(
@@ -71,24 +78,42 @@ export default function (props: any) {
       console.log("running the function");
       const auction = await auctionContract.auction();
       console.log(auction);
-      
-      const allowance = await gloContract.allowance(botUserAddress, auctionContractAddress);
-      console.log("allowance", allowance.toString())
-      const bidAmount = "100000000000000000" /* 0.1 DAI */
+
+      const allowance = await gloContract.allowance(
+        botUserAddress,
+        auctionContractAddress
+      );
+      console.log("allowance", allowance.toString());
+      const bidAmount = "100000000000000000"; /* 0.1 DAI */
       if (allowance.lt(bidAmount)) {
-        console.log("Allowance not enough - approving")
-        await (await gloContract.approve(auctionContractAddress, "10000000000000000000000000000000000")).wait()
+        console.log("Allowance not enough - approving");
+        await (
+          await gloContract.approve(
+            auctionContractAddress,
+            "10000000000000000000000000000000000"
+          )
+        ).wait();
       }
+
+      console.log("Creating test");
+      let testTx = await auctionContract.settleCurrentAndCreateNewAuction({
+        gasLimit: 10000000,
+      });
+      console.log("etst", testTx.hash);
+      await testTx.wait();
 
       // let settleTx = await auctionContract.settleCurrentAndCreateNewAuction({ gasLimit: 10000000 })
       // console.log("Settling auction", settleTx.hash)
       // await settleTx.wait();
 
-      console.log("Creating bid")
+      console.log("Creating bid");
 
-      const tx = await auctionContract.createBid(
-        1, bidAmount, { gasLimit: 10000000 }
-      );
+      // const tx = await auctionContract.createBid(
+      //   1, bidAmount, { gasLimit: 10000000 }
+      // );
+      const tx = await auctionContract.createBid(0, bidAmount, {
+        gasLimit: 10000000,
+      });
       console.log(`Transaction hash: ${tx.hash}`);
       await tx.wait();
 

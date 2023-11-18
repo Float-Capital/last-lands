@@ -1,15 +1,20 @@
-import { default as NounsAuctionHouseABI } from '../abi/contracts/NounsAuctionHouse.sol/NounsAuctionHouse.json';
-import { default as NounsDAOExecutorV2ABI } from '../abi/contracts/governance/NounsDAOExecutorV2.sol/NounsDAOExecutorV2.json';
-import { default as NounsDaoDataABI } from '../abi/contracts/governance/data/NounsDAOData.sol/NounsDAOData.json';
-import { ChainId, ContractDeployment, ContractNamesDAOV3, DeployedContract } from './types';
-import { Interface, parseUnits } from 'ethers/lib/utils';
-import { task, types } from 'hardhat/config';
-import { constants } from 'ethers';
-import promptjs from 'prompt';
+import { default as NounsAuctionHouseABI } from "../abi/contracts/NounsAuctionHouse.sol/NounsAuctionHouse.json";
+import { default as NounsDAOExecutorV2ABI } from "../abi/contracts/governance/NounsDAOExecutorV2.sol/NounsDAOExecutorV2.json";
+// import { default as NounsDaoDataABI } from "../abi/contracts/governance/data/NounsDAOData.sol/NounsDAOData.json";
+import {
+  ChainId,
+  ContractDeployment,
+  ContractNamesDAOV3,
+  DeployedContract,
+} from "./types";
+import { Interface, parseUnits } from "ethers/lib/utils";
+import { task, types } from "hardhat/config";
+import { constants } from "ethers";
+import promptjs from "prompt";
 
 promptjs.colors = false;
-promptjs.message = '> ';
-promptjs.delimiter = '';
+promptjs.message = "> ";
+promptjs.delimiter = "";
 
 const proxyRegistries: Record<number, string> = {
   // [ChainId.Mainnet]: '0xa5409ec958c83c3f309868babaca7c86dcb077c1',
@@ -22,86 +27,109 @@ const ghoContracts: Record<number, string> = {
   // [ChainId.Kovan]: '0xd0a1e359811322d97991e03f863a0c30c2cf029c',
   // [ChainId.Goerli]: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
   // [ChainId.Sepolia]: '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14',
-  [ChainId.ScrollSepolia]: '0xd9692f1748afee00face2da35242417dd05a8615'
+  [ChainId.ScrollSepolia]: "0xd9692f1748afee00face2da35242417dd05a8615",
 };
-const donationRecipientAddress = '0x66116aeaD1628D9b96F6bAaF02863E4009617e6E'
+const donationRecipientAddress = "0x66116aeaD1628D9b96F6bAaF02863E4009617e6E";
 
 const NOUNS_ART_NONCE_OFFSET = 4;
 const AUCTION_HOUSE_PROXY_NONCE_OFFSET = 9;
 const GOVERNOR_N_DELEGATOR_NONCE_OFFSET = 23;
 
-let deploymentKeys: Array<ContractNamesDAOV3> = []
+let deploymentKeys: Array<ContractNamesDAOV3> = [];
 
-task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for testing')
-  .addFlag('autoDeploy', 'Deploy all contracts without user interaction')
-  .addOptionalParam('gho', 'The WETH contract address', '0xd9692f1748afee00face2da35242417dd05a8615', types.string)
+task(
+  "deploy-last-lands",
+  "Deploy all Nouns contracts with short gov times for testing"
+)
+  .addFlag("autoDeploy", "Deploy all contracts without user interaction")
+  .addOptionalParam(
+    "gho",
+    "The WETH contract address",
+    "0xd9692f1748afee00face2da35242417dd05a8615",
+    types.string
+  )
   // .addOptionalParam('gho', 'The WETH contract address', undefined, types.string)
-  .addOptionalParam('noundersdao', 'The nounders DAO contract address', undefined, types.string)
   .addOptionalParam(
-    'auctionTimeBuffer',
-    'The auction time buffer (seconds)',
-    30 /* 30 seconds */,
-    types.int,
+    "noundersdao",
+    "The nounders DAO contract address",
+    undefined,
+    types.string
   )
   .addOptionalParam(
-    'auctionReservePrice',
-    'The auction reserve price (wei)',
+    "auctionTimeBuffer",
+    "The auction time buffer (seconds)",
+    60 /* 60 seconds */,
+    types.int
+  )
+  .addOptionalParam(
+    "auctionReservePrice",
+    "The auction reserve price (wei)",
     10 /* 1 wei */,
-    types.int,
+    types.int
   )
   .addOptionalParam(
-    'auctionMinIncrementBidPercentage',
-    'The auction min increment bid percentage (out of 100)',
+    "auctionMinIncrementBidPercentage",
+    "The auction min increment bid percentage (out of 100)",
     2 /* 2% */,
-    types.int,
+    types.int
   )
   .addOptionalParam(
-    'auctionDuration',
-    'The auction duration (seconds)',
+    "auctionDuration",
+    "The auction duration (seconds)",
     60 * 60 * 24 /* 1 day */,
-    types.int,
+    types.int
   )
-  .addOptionalParam('timelockDelay', 'The timelock delay (seconds)', 60 /* 1 min */, types.int)
   .addOptionalParam(
-    'votingPeriod',
-    'The voting period (blocks)',
+    "timelockDelay",
+    "The timelock delay (seconds)",
+    60 /* 1 min */,
+    types.int
+  )
+  .addOptionalParam(
+    "votingPeriod",
+    "The voting period (blocks)",
     80 /* 20 min (15s blocks) */,
-    types.int,
+    types.int
   )
-  .addOptionalParam('votingDelay', 'The voting delay (blocks)', 1, types.int)
+  .addOptionalParam("votingDelay", "The voting delay (blocks)", 1, types.int)
   .addOptionalParam(
-    'proposalThresholdBps',
-    'The proposal threshold (basis points)',
+    "proposalThresholdBps",
+    "The proposal threshold (basis points)",
     100 /* 1% */,
-    types.int,
+    types.int
   )
   .addOptionalParam(
-    'minQuorumVotesBPS',
-    'Min basis points input for dynamic quorum',
+    "minQuorumVotesBPS",
+    "Min basis points input for dynamic quorum",
     1_000,
-    types.int,
+    types.int
   ) // Default: 10%
   .addOptionalParam(
-    'maxQuorumVotesBPS',
-    'Max basis points input for dynamic quorum',
+    "maxQuorumVotesBPS",
+    "Max basis points input for dynamic quorum",
     4_000,
-    types.int,
+    types.int
   ) // Default: 40%
-  .addOptionalParam('quorumCoefficient', 'Dynamic quorum coefficient (float)', 1, types.float)
   .addOptionalParam(
-    'createCandidateCost',
-    'Data contract proposal candidate creation cost in wei',
-    100000000000000, // 0.0001 ether
-    types.int,
+    "quorumCoefficient",
+    "Dynamic quorum coefficient (float)",
+    1,
+    types.float
   )
   .addOptionalParam(
-    'updateCandidateCost',
-    'Data contract proposal candidate update cost in wei',
+    "createCandidateCost",
+    "Data contract proposal candidate creation cost in wei",
+    100000000000000, // 0.0001 ether
+    types.int
+  )
+  .addOptionalParam(
+    "updateCandidateCost",
+    "Data contract proposal candidate update cost in wei",
     0,
-    types.int,
+    types.int
   )
   .setAction(async (args, { ethers }) => {
-    console.log("args", args)
+    console.log("args", args);
 
     // await hre.run("verify:verify", {
     //   "name": "NounsAuctionHouseProxyAdmin", "instance":
@@ -136,7 +164,7 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
 
     if (!args.noundersdao) {
       console.log(
-        `Nounders DAO address not provided. Setting to deployer (${deployer.address})...`,
+        `Nounders DAO address not provided. Setting to deployer (${deployer.address})...`
       );
       args.noundersdao = deployer.address;
     }
@@ -144,7 +172,7 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
       const deployedWETHContract = ghoContracts[network.chainId];
       if (!deployedWETHContract) {
         throw new Error(
-          `Can not auto-detect WETH contract on chain ${network.name}. Provide it with the --gho arg.`,
+          `Can not auto-detect WETH contract on chain ${network.name}. Provide it with the --gho arg.`
         );
       }
       args.gho = deployedWETHContract;
@@ -163,10 +191,8 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
       from: deployer.address,
       nonce: nonce + GOVERNOR_N_DELEGATOR_NONCE_OFFSET,
     });
-    const deployment: Record<ContractNamesDAOV3, DeployedContract> = {} as Record<
-      ContractNamesDAOV3,
-      DeployedContract
-    >;
+    const deployment: Record<ContractNamesDAOV3, DeployedContract> =
+      {} as Record<ContractNamesDAOV3, DeployedContract>;
     const contracts: Record<ContractNamesDAOV3, ContractDeployment> = {
       NFTDescriptorV2: {},
       SVGRenderer: {},
@@ -178,7 +204,10 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
       },
       Inflator: {},
       NounsArt: {
-        args: [() => deployment.NounsDescriptorV2.address, () => deployment.Inflator.address],
+        args: [
+          () => deployment.NounsDescriptorV2.address,
+          () => deployment.Inflator.address,
+        ],
       },
       NounsSeeder: {},
       NounsToken: {
@@ -191,10 +220,7 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
         ],
       },
       Battle: {
-        args: [
-          args.gho,
-          () => deployment.NounsToken.address,
-        ]
+        args: [args.gho, () => deployment.NounsToken.address],
       },
       NounsAuctionHouse: {
         waitForConfirmation: true,
@@ -205,17 +231,20 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
           () => deployment.NounsAuctionHouse.address,
           () => deployment.NounsAuctionHouseProxyAdmin.address,
           () => {
-            return new Interface(NounsAuctionHouseABI).encodeFunctionData('initialize', [
-              deployment.NounsToken.address,
-              args.gho,
-              args.auctionTimeBuffer,
-              args.auctionReservePrice,
-              args.auctionMinIncrementBidPercentage,
-              args.auctionDuration,
-              donationRecipientAddress,
-              deployment.Battle.address
-            ])
-          }
+            return new Interface(NounsAuctionHouseABI).encodeFunctionData(
+              "initialize",
+              [
+                deployment.NounsToken.address,
+                args.gho,
+                args.auctionTimeBuffer,
+                args.auctionReservePrice,
+                args.auctionMinIncrementBidPercentage,
+                args.auctionDuration,
+                donationRecipientAddress,
+                deployment.Battle.address,
+              ]
+            );
+          },
         ],
         waitForConfirmation: true,
         validateDeployment: () => {
@@ -330,7 +359,9 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
     for (const [name, contract] of Object.entries(contracts)) {
       let gasPrice = (await ethers.provider.getGasPrice()).mul(2);
       if (!args.autoDeploy) {
-        const gasInGwei = Math.round(Number(ethers.utils.formatUnits(gasPrice, 'gwei')));
+        const gasInGwei = Math.round(
+          Number(ethers.utils.formatUnits(gasPrice, "gwei"))
+        );
 
         promptjs.start();
 
@@ -338,24 +369,24 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
           {
             properties: {
               gasPrice: {
-                type: 'integer',
+                type: "integer",
                 required: true,
-                description: 'Enter a gas price (gwei)',
+                description: "Enter a gas price (gwei)",
                 default: gasInGwei,
               },
             },
           },
         ]);
-        gasPrice = ethers.utils.parseUnits(result.gasPrice.toString(), 'gwei');
+        gasPrice = ethers.utils.parseUnits(result.gasPrice.toString(), "gwei");
       }
 
       let nameForFactory: string;
       switch (name) {
-        case 'NounsDAOExecutorV2':
-          nameForFactory = 'NounsDAOExecutorV2Test';
+        case "NounsDAOExecutorV2":
+          nameForFactory = "NounsDAOExecutorV2Test";
           break;
-        case 'NounsDAOLogicV3':
-          nameForFactory = 'NounsDAOLogicV3Harness';
+        case "NounsDAOLogicV3":
+          nameForFactory = "NounsDAOLogicV3Harness";
           break;
         default:
           nameForFactory = name;
@@ -368,19 +399,20 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
 
       const deploymentGas = await factory.signer.estimateGas(
         factory.getDeployTransaction(
-          ...(contract.args?.map(a => (typeof a === 'function' ? a() : a)) ?? []),
+          ...(contract.args?.map((a) => (typeof a === "function" ? a() : a)) ??
+            []),
           {
             gasPrice,
-          },
-        ),
+          }
+        )
       );
       const deploymentCost = deploymentGas.mul(gasPrice);
 
       console.log(
         `Estimated cost to deploy ${name}: ${ethers.utils.formatUnits(
           deploymentCost,
-          'ether',
-        )} ETH`,
+          "ether"
+        )} ETH`
       );
 
       if (!args.autoDeploy) {
@@ -395,46 +427,51 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
             },
           },
         ]);
-        if (result.operation === 'SKIP') {
+        if (result.operation === "SKIP") {
           console.log(`Skipping ${name} deployment...`);
           continue;
         }
-        if (result.operation === 'EXIT') {
-          console.log('Exiting...');
+        if (result.operation === "EXIT") {
+          console.log("Exiting...");
           return;
         }
       }
       console.log(`Deploying ${name}...`);
 
-      const nextNonce = (await ethers.provider.getTransactionCount(deployer.address));
-      console.log(`using nonce ${nextNonce}`)
+      const nextNonce = await ethers.provider.getTransactionCount(
+        deployer.address
+      );
+      console.log(`using nonce ${nextNonce}`);
 
       const deployedContract = await factory.deploy(
-        ...(contract.args?.map(a => (typeof a === 'function' ? a() : a)) ?? []),
+        ...(contract.args?.map((a) => (typeof a === "function" ? a() : a)) ??
+          []),
         {
           gasPrice,
-          nonce: nextNonce
-        },
+          nonce: nextNonce,
+        }
       );
 
       if (contract.waitForConfirmation) {
-        console.log("wating for deployment")
+        console.log("wating for deployment");
         await deployedContract.deployed();
       }
-      console.log("wating for deployment double")
+      console.log("wating for deployment double");
       await deployedContract.deployed();
-
 
       deployment[name as ContractNamesDAOV3] = {
         name: nameForFactory,
         instance: deployedContract,
         address: deployedContract.address,
-        constructorArguments: contract.args?.map(a => (typeof a === 'function' ? a() : a)) ?? [],
+        constructorArguments:
+          contract.args?.map((a) => (typeof a === "function" ? a() : a)) ?? [],
         libraries: contract?.libraries?.() ?? {},
       };
 
-      deploymentKeys.push(name as ContractNamesDAOV3)
-      console.log(`pushed ${name as ContractNamesDAOV3} to verification array for later`)
+      deploymentKeys.push(name as ContractNamesDAOV3);
+      console.log(
+        `pushed ${name as ContractNamesDAOV3} to verification array for later`
+      );
 
       contract.validateDeployment?.();
 
@@ -442,12 +479,16 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
     }
 
     // Set the auction house in the battle contract as the last step
-    let setAuctionForBattleTx = await deployment.Battle.instance.setAuctionContract(deployment.NounsAuctionHouseProxy.address);
-    await setAuctionForBattleTx.wait()
-    console.log("set battle acoution contract to auction house")
+    let setAuctionForBattleTx =
+      await deployment.Battle.instance.setAuctionContract(
+        deployment.NounsAuctionHouseProxy.address
+      );
+    await setAuctionForBattleTx.wait();
+    console.log("set battle acoution contract to auction house");
 
-    const auctionContract = deployment.NounsAuctionHouse.instance.connect(deployer)
-    const auctionContractAddress = auctionContract.address
+    const auctionContract =
+      deployment.NounsAuctionHouse.instance.connect(deployer);
+    const auctionContractAddress = auctionContract.address;
     await (await auctionContract.unpause()).wait();
 
     const gloTokenAddr = "0xD9692f1748aFEe00FACE2da35242417dd05a8615";
@@ -455,34 +496,50 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
       "function approve(address spender, uint256 amount) public returns (bool)",
       "function allowance(address owner, address spender) external view returns (uint256)",
     ];
-    const gloContract = (new ethers.Contract(gloTokenAddr, erc20ABI, deployer)).connect(deployer);
+    const gloContract = new ethers.Contract(
+      gloTokenAddr,
+      erc20ABI,
+      deployer
+    ).connect(deployer);
 
+    const bidAmount = "100000000000000000"; /* 0.1 DAI */
+    const approveTx = await gloContract.approve(
+      auctionContractAddress,
+      "10000000000000000000000000000000000"
+    );
 
-    const bidAmount = "100000000000000000" /* 0.1 DAI */
-    const approveTx = await gloContract.approve(auctionContractAddress, "10000000000000000000000000000000000");
+    await approveTx.wait();
 
-    await approveTx.wait()
+    let settleTx = await auctionContract.settleCurrentAndCreateNewAuction({
+      gasLimit: 10000000,
+    });
 
-    let settleTx = await auctionContract.settleCurrentAndCreateNewAuction({ gasLimit: 10000000 })
+    await settleTx.wait();
 
-    await settleTx.wait()
+    deployment.NounsAuctionHouse.instance.settleCurrentAndCreateNewAuction({
+      gasLimit: 10000000,
+    });
 
-    deployment.NounsAuctionHouse.instance.settleCurrentAndCreateNewAuction({ gasLimit: 10000000 })
-
-    console.log("Will run:")
+    console.log("Will run:");
     for (let cName of deploymentKeys) {
       console.log(`// ${cName}
-      await hre.run("verify:verify", ${JSON.stringify(deployment[cName as ContractNamesDAOV3])});`)
+      await hre.run("verify:verify", ${JSON.stringify(
+        deployment[cName as ContractNamesDAOV3]
+      )});`);
     }
 
     // Actual run
     for (let cName of deploymentKeys) {
-      console.log(`// running verify for ${cName}`)
+      console.log(`// running verify for ${cName}`);
 
       // console.log(`await hre.run("verify:verify", ${JSON.stringify(deployment[cName as ContractNamesDAOV3])});`)
 
       if (cName == "NounsAuctionHouseProxyAdmin") {
-        await hre.run("verify:verify", { ...deployment[cName as ContractNamesDAOV3], contract: "contracts/proxies/NounsAuctionHouseProxyAdmin.sol:NounsAuctionHouseProxyAdmin" });
+        await hre.run("verify:verify", {
+          ...deployment[cName as ContractNamesDAOV3],
+          contract:
+            "contracts/proxies/NounsAuctionHouseProxyAdmin.sol:NounsAuctionHouseProxyAdmin",
+        });
       } else {
         await hre.run("verify:verify", deployment[cName as ContractNamesDAOV3]);
       }
