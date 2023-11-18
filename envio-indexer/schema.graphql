@@ -1,0 +1,11 @@
+# type Auction {
+#   id: ID!
+#   startTime: BigInt!
+#   endTime: BigInt!
+# }
+
+type GlobalState {
+  id: ID!
+  mintedLand: [BigInt!]!
+  mintedLandIsoCodes: [String!]!
+}

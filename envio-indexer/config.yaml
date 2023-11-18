@@ -1,0 +1,40 @@
+name: The Last Lands
+description: Indexer of last lands game
+networks:
+  - id: 534351 # Sepolia Scroll
+    start_block: 2306900
+    rpc_config:
+      url: "https://sepolia-rpc.scroll.io"
+    contracts:
+      - name: NounsToken
+        address: "0xDA27C0D5002DeCd0e3DF8C406F75ad74e4f96ED7"
+        handler: src/EventHandlers.ts
+        events:
+          - event: "event NounCreated(uint256 indexed tokenId)"
+            requiredEntities:
+              - name: "GlobalState"
+      # - name: Battle
+      #   address: "0xb402DF175140642e39c2B578947622cfDE3FdbF7"
+      #   handler: src/EventHandlers.ts
+      #   events:
+      #     - event: "event BattleResults(uint256 roundNumber, uint8[202] results)"
+      #       requiredEntities:
+      #         - name: "Greeting"
+      # - name: NounsAuctionHouse
+      #   address: "0x14d9eB937fc751C2c64Ff4add21601085d9E70E3"
+      #   handler: src/EventHandlers.ts
+      #   events:
+      #     - event: "event AuctionCreated(uint256 startTime, uint256 endTime)"
+      #       requiredEntities: []
+      #     - event: "event AuctionBid(uint256 indexed nounId, address sender, uint256 value, bool extended)"
+      #       requiredEntities: []
+
+    # event AuctionCreated(uint256 startTime,uint256 endTime)
+
+    # event AuctionPeriodOver()
+
+    # event AuctionBid(uint256 indexed nounId, address sender, uint256 value, bool extended)
+
+    # event AuctionExtended(uint256 indexed nounId, uint256 endTime)
+
+    # event AuctionSettled(uint256 indexed nounId,address winner,uint256 amount)
