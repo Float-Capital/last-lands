@@ -8,6 +8,7 @@ import {
   WalletOptionsModal,
   BidModal,
 } from "../components";
+import Simulation from "../components/Simulation";
 // import MapChart from "../components/map";
 // import SVGmap from "../components/SVGMap"; // backup map
 import {
@@ -17,10 +18,13 @@ import {
   ZoomableGroup,
 } from "react-simple-maps";
 
+console.log(Simulation)
+
 const Admin: NextPage = () => {
   return (
     <>
       "Admin page"
+      <Simulation/>
     </>
   );
 };

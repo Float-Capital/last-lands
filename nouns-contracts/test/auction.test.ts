@@ -15,7 +15,7 @@ import { deployErc20, deployNounsToken, populateDescriptorV2 } from './utils';
 chai.use(solidity);
 const { expect } = chai;
 
-describe('NounsAuctionHouse', () => {
+describe.only('NounsAuctionHouse', () => {
   let nounsAuctionHouse: NounsAuctionHouse;
   let nounsToken: NounsToken;
   let paymentToken: TestERC20;
@@ -37,7 +37,9 @@ describe('NounsAuctionHouse', () => {
 
 
   async function deploy(deployer?: SignerWithAddress) {
+    console.log("deploying")
     const auctionHouseFactory = await ethers.getContractFactory('NounsAuctionHouse', deployer);
+    console.log("after")
     return upgrades.deployProxy(auctionHouseFactory, [
       nounsToken.address,
       paymentToken.address,
@@ -45,7 +47,10 @@ describe('NounsAuctionHouse', () => {
       RESERVE_PRICE,
       MIN_INCREMENT_BID_PERCENTAGE,
       DURATION,
+      "0x0000000000000000000000000000000000000001",
+      "0x0000000000000000000000000000000000000002",
     ]) as Promise<NounsAuctionHouse>;
+
   }
 
   before(async () => {
@@ -80,6 +85,8 @@ describe('NounsAuctionHouse', () => {
       RESERVE_PRICE,
       MIN_INCREMENT_BID_PERCENTAGE,
       DURATION,
+      "0x0000000000000000000000000000000000000001",
+      "0x0000000000000000000000000000000000000002",
     );
     await expect(tx).to.be.revertedWith('Initializable: contract is already initialized');
   });

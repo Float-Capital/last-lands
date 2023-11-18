@@ -58,7 +58,7 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
   .addOptionalParam(
     'auctionDuration',
     'The auction duration (seconds)',
-    60 * 2 /* 2 minutes */,
+    60 * 60 * 24 /* 1 day */,
     types.int,
   )
   .addOptionalParam('timelockDelay', 'The timelock delay (seconds)', 60 /* 1 min */, types.int)
@@ -101,7 +101,7 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
     types.int,
   )
   .setAction(async (args, { ethers }) => {
-
+    console.log("args", args)
 
     // await hre.run("verify:verify", {
     //   "name": "NounsAuctionHouseProxyAdmin", "instance":
@@ -442,7 +442,30 @@ task('deploy-last-lands', 'Deploy all Nouns contracts with short gov times for t
     }
 
     // Set the auction house in the battle contract as the last step
-    deployment.Battle.instance.setAuctionContract(deployment.NounsAuctionHouseProxy.address);
+    let setAuctionForBattleTx = await deployment.Battle.instance.setAuctionContract(deployment.NounsAuctionHouseProxy.address);
+    await setAuctionForBattleTx.wait()
+    console.log("set battle acoution contract to auction house")
+
+    const gloTokenAddr = "0xD9692f1748aFEe00FACE2da35242417dd05a8615";
+    const erc20ABI = [
+      "function approve(address spender, uint256 amount) public returns (bool)",
+      "function allowance(address owner, address spender) external view returns (uint256)",
+    ];
+    const gloContract = new ethers.Contract(gloTokenAddr, erc20ABI, deployer);
+
+    const auctionContract = deployment.NounsAuctionHouse.instance
+    const auctionContractAddress = auctionContract.address
+
+    const bidAmount = "100000000000000000" /* 0.1 DAI */
+    const approveTx = await gloContract.approve(auctionContractAddress, "10000000000000000000000000000000000");
+
+    await approveTx.wait()
+
+    let settleTx = await auctionContract.settleCurrentAndCreateNewAuction({ gasLimit: 10000000 })
+
+    await settleTx.wait()
+
+    deployment.NounsAuctionHouse.instance.settleCurrentAndCreateNewAuction({ gasLimit: 10000000 })
 
     console.log("Will run:")
     for (let cName of deploymentKeys) {

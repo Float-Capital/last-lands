@@ -21,10 +21,10 @@ export const getSigners = async (): Promise<TestSigners> => {
 export const deployBattle = async (deployer?: SignerWithAddress): Promise<Battle> => {
   const factory = new Battle__factory(deployer || (await getSigners()).deployer);
 
-  return factory.deploy();
+  return factory.deploy("0x0000000000000000000000000000000000000001", "0x0000000000000000000000000000000000000002");
 };
 
-describe.only('FightContract', function () {
+describe('FightContract', function () {
   let fightContract: Battle;
 
   beforeEach(async () => {
