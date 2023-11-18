@@ -131,15 +131,16 @@ contract NounsAuctionHouse is
 
         INounsAuctionHouse.Auction memory _auction = auction;
 
-        require(_auction.nounId == nounId, "Noun not up for auction");
-        require(block.timestamp < _auction.endTime, "Auction expired");
-        require(bidValue >= reservePrice, "Must send at least reservePrice");
-        require(
-            bidValue >=
-                _auction.amount +
-                    ((_auction.amount * minBidIncrementPercentage) / 100),
-            "Must send more than last bid by minBidIncrementPercentage amount"
-        );
+        // temp remove requires
+        // require(_auction.nounId == nounId, "Noun not up for auction");
+        // require(block.timestamp < _auction.endTime, "Auction expired");
+        // require(bidValue >= reservePrice, "Must send at least reservePrice");
+        // require(
+        //     bidValue >=
+        //         _auction.amount +
+        //             ((_auction.amount * minBidIncrementPercentage) / 100),
+        //     "Must send more than last bid by minBidIncrementPercentage amount"
+        // );
 
         address lastBidder = _auction.bidder;
 
