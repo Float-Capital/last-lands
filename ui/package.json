@@ -20,8 +20,7 @@
     "react-tooltip": "^5.23.0",
     "wagmi": "^0.1.2"
   },
-  "devDependencies": {
-    "ethereumjs-abi": "https://github.com/ethereumjs/ethereumjs-abi",
+  "devDependencies": {    
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@types/node": "17.0.8",
