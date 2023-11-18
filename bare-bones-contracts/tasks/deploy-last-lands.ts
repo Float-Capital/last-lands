@@ -470,16 +470,18 @@ task(
     console.log("her4.1");
 
     await createAuctionTx.wait();
-    let settleTx = await auctionContract.settleCurrentAndCreateNewAuction({
-      gasLimit: 10000000,
-    });
+
     console.log("her4");
 
-    await settleTx.wait();
-
-    deployment.NounsAuctionHouse.instance.settleCurrentAndCreateNewAuction({
+    const bidTx = await auctionContract.createBid(1, bidAmount, {
       gasLimit: 10000000,
     });
+
+    await bidTx.wait();
+
+    // deployment.NounsAuctionHouse.instance.settleCurrentAndCreateNewAuction({
+    //   gasLimit: 10000000,
+    // });
 
     console.log("Will run:");
     for (let cName of deploymentKeys) {
