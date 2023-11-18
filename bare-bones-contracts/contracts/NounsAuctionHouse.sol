@@ -105,7 +105,7 @@ contract NounsAuctionHouse is
         public
         override
         nonReentrant
-        // whenNotPaused
+    // whenNotPaused
     {
         _settleAuction();
         _createAuction();
@@ -128,6 +128,7 @@ contract NounsAuctionHouse is
         uint256 nounId,
         uint256 bidValue
     ) external override nonReentrant {
+        console.log("create bid");
         _recievePaymentToken(bidValue);
 
         INounsAuctionHouse.Auction memory _auction = auction;
@@ -225,7 +226,7 @@ contract NounsAuctionHouse is
         );
     }
 
-    function createAuction() external onlyOwner{
+    function createAuction() external onlyOwner {
         _createAuction();
     }
 
@@ -327,6 +328,7 @@ contract NounsAuctionHouse is
     }
 
     function _recievePaymentToken(uint256 amount) internal {
+        console.log("recievePaymentToken", paymentToken);
         bool success = IERC20(paymentToken).transferFrom(
             msg.sender,
             address(this),

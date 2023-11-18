@@ -9,6 +9,8 @@ import { Interface, parseUnits } from "ethers/lib/utils";
 import { task, types } from "hardhat/config";
 import { constants } from "ethers";
 import promptjs from "prompt";
+import { TestERC20__factory } from "../typechain";
+import { getSigners } from "../test/utils";
 
 promptjs.colors = false;
 promptjs.message = "> ";
@@ -112,8 +114,18 @@ task(
     /// Won't have for scroll sepolia
     const proxyRegistryAddress = proxyRegistries[network.chainId] ?? constants.AddressZero;
 
-    if (!args.gho) {
-      const deployedWETHContract = ghoContracts[network.chainId];
+    console.log("gho", !args.gho, network.chainId !== ChainId.ScrollSepolia, network.chainId, ChainId.ScrollSepolia)
+    if (!args.gho || network.chainId !== ChainId.ScrollSepolia) {
+      let deployedWETHContract = ghoContracts[network.chainId];
+      if (network.chainId !== ChainId.ScrollSepolia) {
+        console.log("deplying a test gho")
+        const factory = new TestERC20__factory(deployer);
+
+        let deployedWETHContractInstance = (await factory.deploy("1000000000000000000000000000000"));
+        deployedWETHContractInstance.approve
+        deployedWETHContract = deployedWETHContractInstance.address;
+        console.log("deployedWETHContract", deployedWETHContract)
+      }
       if (!deployedWETHContract) {
         throw new Error(
           `Can not auto-detect WETH contract on chain ${network.name}. Provide it with the --gho arg.`
