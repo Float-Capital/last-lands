@@ -9,6 +9,7 @@ import {
   BidModal,
 } from "../components";
 import Map from "../components/Map";
+import Image from "next/image";
 
 const Home: NextPage = () => {
   const [showWalletOptions, setShowWalletOptions] = useState(false);
@@ -63,6 +64,9 @@ const Home: NextPage = () => {
         setShowWalletOptions={setShowWalletOptions}
       >
         <Map />
+        <div className="fixed bottom-0 left-10">
+          <img src="/noun-mouse.png" className="w-[60px]" />
+        </div>
       </Layout>
     </>
   );
