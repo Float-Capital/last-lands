@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { Button, Loader, BidModal } from "../components";
-import { useAccount } from "wagmi";
+import { erc20ABI, useAccount } from "wagmi";
 const ethers = require("ethers");
 
 const auctionContractAddress = "0x14d9eB937fc751C2c64Ff4add21601085d9E70E3";
@@ -21,6 +21,8 @@ import {
   ZoomableGroup,
 } from "react-simple-maps";
 import { Option } from "react-dropdown";
+import { BigNumber, BigNumberish } from "ethers";
+import { gloTokenAddr } from "./Contracts";
 
 const countryIsoCodes = [
   "AFG",
@@ -440,9 +442,14 @@ const Map = () => {
   const [{ data: accountData }] = useAccount();
   const [provider, setProvider] = useState<any>(null); // ethers.providers.Web3Provider
   const [optAuctionContract, setOptAuctionContract] = useState<any>(null); // ethers.Contract
+  const [optGloContract, setOptGloContract] = useState<any>(null); // ethers.Contract
   let [activeCountryCodeIndex, setActiveCountryCodeIndex] = useState<
     number | null | undefined
   >(undefined);
+  let [activeAuction, setActiveAuction] = useState<any>(
+    undefined
+  );
+  let [allowance, setAllowance] = useState<BigNumberish>(0);
 
   useEffect(() => {
     let interval: any;
@@ -466,8 +473,19 @@ const Map = () => {
           provider
         );
 
+        const gloContract = new ethers.Contract(
+          gloTokenAddr,
+          erc20ABI,
+          provider
+        );
+        setOptGloContract(gloContract);
         setOptAuctionContract(auctionContract);
         console.log("We have the auctionContract");
+        const _allowance = await gloContract.allowance(
+          accountData?.address || "0x0000000000000000000000000000000000000000",
+          auctionContractAddress
+        );
+        setAllowance(_allowance);
       });
     } else {
       if (
@@ -476,12 +494,13 @@ const Map = () => {
         optAuctionContract != undefined
       ) {
         interval = setInterval(async () => {
-          console.log("checking the latest state of the auction");
+          // console.log("checking the latest state of the auction");
           const auction = await optAuctionContract.auction();
-          console.log(auction);
+          // console.log(auction);
           const nounId = auction.nounId.toNumber();
-          console.log("Processing auction for ", nounId);
+          // console.log("Processing auction for ", nounId);
           setActiveCountryCodeIndex(auction.nounId.toNumber());
+          setActiveAuction(auction);
         }, 2000);
       }
     }
@@ -493,8 +512,58 @@ const Map = () => {
     };
   }, [accountData, optAuctionContract]);
 
-  let selectedListOfCountries = (!!activeCountryCodeIndex) ? countryIsoCodes.slice(0, activeCountryCodeIndex-1) : [];
+  let selectedListOfCountries = !!activeCountryCodeIndex
+    ? countryIsoCodes.slice(0, activeCountryCodeIndex - 1)
+    : [];
 
+  let [isLoadingUserAction, setIsLoadingUserAction] = useState({
+    userActionStarted: false,
+    userTxSubmitted: false,
+    userTxConfirmed: false,
+  });
+  useEffect(() => {}, [isLoadingUserAction]);
+
+  let buttonOrLoader: JSX.Element = <>placeholder</>;
+  {
+    if (isLoadingUserAction.userActionStarted) {
+      buttonOrLoader = (
+        <>
+          Please sign tx <Loader size={5} />
+        </>
+      );
+    } else if (isLoadingUserAction.userTxSubmitted) {
+      buttonOrLoader = (
+        <>
+          TX Submitted
+          <Loader size={5} />;
+        </>
+      );
+    } else if (isLoadingUserAction.userTxConfirmed) {
+      buttonOrLoader = (
+        <>
+          TX Complete
+          <Loader size={5} />;
+          {/* <p onClick={() => console.log("clicked this")}>Click here to end the auction early (for demo/testing purposes only). [needs to mine a tx on scroll]</p> */}
+          <p
+            onClick={() => {
+              setIsLoadingUserAction({
+                userActionStarted: false,
+                userTxSubmitted: false,
+                userTxConfirmed: false,
+              });
+            }}
+          >
+            Click here to end the auction early (for demo/testing purposes
+            only). [needs to mine a tx on scroll]
+          </p>
+        </>
+      );
+    } else {
+      buttonOrLoader = (
+        <Button loading={!activeCountryCodeIndex}>Place auto bid</Button>
+      );
+    }
+  }
 
   return (
     <>
@@ -512,7 +581,10 @@ const Map = () => {
                 {({ geographies }) => {
                   return geographies.map((geo) => {
                     let isSelected = selectedListOfCountries.includes(geo.id);
-                    let isActive = ((!!activeCountryCodeIndex) ? countryIsoCodes[activeCountryCodeIndex] : "null") == geo.id;
+                    let isActive =
+                      (!!activeCountryCodeIndex
+                        ? countryIsoCodes[activeCountryCodeIndex]
+                        : "null") == geo.id;
 
                     return (
                       <Geography
@@ -520,7 +592,11 @@ const Map = () => {
                         geography={geo}
                         style={{
                           default: {
-                            fill: isActive ? "#E81220" /*red*/ : (isSelected ? "#586AE8" : "#D6D6DA"),
+                            fill: isActive
+                              ? "#E81220" /*red*/
+                              : isSelected
+                              ? "#586AE8"
+                              : "#D6D6DA",
                             stroke: "#FFF",
                             outline: "none",
                           },
@@ -550,11 +626,61 @@ const Map = () => {
       />
 
       <div className="fixed bottom-0 right-0 p-5">
-        <h2 className="text-2xl font-bold text-right">Bid on {(!!activeCountryCodeIndex) ? countriesNames[countryIsoCodes[activeCountryCodeIndex] as keyof typeof countriesNames]: "loading"}</h2>
-        <button onClick={() => {
-          optAuctionContract?.createBid(activeCountryCodeIndex, "100000000000000000", { gasLimit: 10000000 })
-        }}>
-          <Button loading={!activeCountryCodeIndex}>Place auto bid</Button>
+        <h2 className="text-2xl font-bold text-right">
+          Bid on{" "}
+          {!!activeCountryCodeIndex
+            ? countriesNames[
+                countryIsoCodes[
+                  activeCountryCodeIndex
+                ] as keyof typeof countriesNames
+              ]
+            : "loading"}
+        </h2>
+        <button
+          onClick={async () => {
+            setIsLoadingUserAction({
+              userActionStarted: true,
+              userTxSubmitted: false,
+              userTxConfirmed: false,
+            });
+
+            let bidAmount = "20000000000000000"; /* 0.02 DAI */
+            if (BigNumber.from(allowance || 0).lt(bidAmount)) {
+              console.log("Allowance not enough - approving");
+              const approvalTx = await optGloContract?.approve(
+                auctionContractAddress,
+                "10000000000000000000000000000000000"
+              )
+              await (
+                approvalTx
+              ).wait();
+            }
+
+            if (activeAuction != undefined) {
+              let minBidAmount = activeAuction.amount.mul(102).div(100)
+              if (bidAmount < minBidAmount) {
+                bidAmount = minBidAmount.toString()
+              }
+            }
+            let tx = await optAuctionContract?.createBid(
+              activeCountryCodeIndex,
+              "100000000000000000",
+              { gasLimit: 10000000 }
+            );
+            setIsLoadingUserAction({
+              userActionStarted: true,
+              userTxSubmitted: true,
+              userTxConfirmed: false,
+            });
+            tx?.wait();
+            setIsLoadingUserAction({
+              userActionStarted: true,
+              userTxSubmitted: true,
+              userTxConfirmed: true,
+            });
+          }}
+        >
+          { buttonOrLoader }
         </button>
       </div>
     </>
