@@ -65,7 +65,7 @@ const Home: NextPage = () => {
       >
         <Map />
         <div className="fixed bottom-0 left-10">
-          <img src="/noun-mouse.png" className="w-[60px]" />
+          <img src="/noun-mouse.png" className="w-[160px]" />
         </div>
       </Layout>
     </>
